@@ -1,115 +1,112 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Riley AI</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riley Raccoon — AI Code Generator + Qlik Sense Expert</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700;800&display=swap');
 
+:root{
+  --black:#000;--b1:#020408;--b2:#050810;--b3:#080d18;--b4:#0b1020;--b5:#0e1428;
+  --eb:#00aaff;--eb2:#0088dd;--eb3:#0066aa;--eb4:#004477;
+  --ebg:0 0 8px #00aaff99,0 0 22px #00aaff44;
+  --ebg2:0 0 4px #00aaff66,0 0 12px #00aaff22;
+  --w:#e8f4ff;--g1:#90aac0;--g2:#506070;--g3:#283848;--g4:#162030;--g5:#0e1820;
+  --green:#00cc66;--amber:#ffaa00;--red:#ff4444;--purple:#8866ff;
+  --fui:'Exo 2',sans-serif;--fhd:'Rajdhani',sans-serif;--fco:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
-margin:0;
-font-family:system-ui;
-background:#0f172a;
-color:#e2e8f0;
+background:linear-gradient(180deg,var(--b1),var(--b3));
+color:var(--w);
+font-family:var(--fui);
+height:100vh;
 display:flex;
 flex-direction:column;
-height:100vh;
 }
-
 #topbar{
-background:#020617;
-padding:12px;
+background:var(--b2);
+padding:10px 16px;
+border-bottom:1px solid var(--g4);
 display:flex;
 align-items:center;
-gap:10px;
-border-bottom:1px solid #1e293b;
+gap:12px;
 }
-
 #title{
-font-weight:600;
+font-family:var(--fhd);
+font-weight:700;
+font-size:20px;
+letter-spacing:.04em;
 }
-
 #chat{
 flex:1;
 overflow:auto;
-padding:20px;
+padding:18px;
 display:flex;
 flex-direction:column;
 gap:14px;
 }
-
 .msg{
 max-width:900px;
 line-height:1.6;
 }
-
 .user{
 align-self:flex-end;
-background:#1e293b;
+background:var(--b4);
 padding:10px 14px;
-border-radius:8px;
+border-radius:10px;
 }
-
 .ai{
 align-self:flex-start;
-background:#020617;
-border:1px solid #1e293b;
+background:var(--b2);
 padding:12px 16px;
-border-radius:8px;
+border-radius:10px;
+border:1px solid var(--g4);
 }
-
 pre{
-background:#020617;
+background:var(--b1);
 padding:14px;
-border-radius:6px;
-border:1px solid #1e293b;
+border-radius:8px;
+border:1px solid var(--g4);
 overflow:auto;
+font-family:var(--fco);
 }
-
-code{
-font-family:monospace;
-}
-
 #inputbar{
 display:flex;
 gap:10px;
 padding:14px;
-border-top:1px solid #1e293b;
-background:#020617;
+background:var(--b2);
+border-top:1px solid var(--g4);
 }
-
 textarea{
 flex:1;
 resize:none;
-height:60px;
-background:#020617;
-border:1px solid #1e293b;
-color:#e2e8f0;
+height:64px;
+background:var(--b1);
+border:1px solid var(--g4);
+color:var(--w);
 padding:10px;
-border-radius:6px;
+border-radius:8px;
+font-family:var(--fui);
 }
-
 button{
-background:#2563eb;
+background:var(--eb);
 border:none;
 padding:10px 16px;
-border-radius:6px;
+border-radius:8px;
 color:white;
 cursor:pointer;
 }
-
-button:hover{
-background:#1d4ed8;
-}
-
+button:hover{background:var(--eb2)}
 </style>
 </head>
 
 <body>
 
 <div id="topbar">
-<div id="title">Riley AI</div>
+<div id="title">Riley Raccoon AI</div>
 </div>
 
 <div id="chat"></div>
@@ -126,23 +123,18 @@ let history=[]
 let abortCtrl=null
 
 function addMessage(text,role){
-
 const chat=document.getElementById("chat")
-
 const msg=document.createElement("div")
 msg.className="msg "+role
 msg.innerHTML=format(text)
-
 chat.appendChild(msg)
 chat.scrollTop=chat.scrollHeight
 }
 
 function format(t){
-
 t=t.replace(/```([\s\S]*?)```/g,(m,p)=>{
 return "<pre>"+escapeHtml(p)+"</pre>"
 })
-
 return t
 }
 
@@ -185,7 +177,7 @@ maxOutputTokens:8192
 }
 
 const res=await fetch(
-"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="+API_KEY,
+"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+API_KEY,
 {
 method:"POST",
 signal:abortCtrl.signal,

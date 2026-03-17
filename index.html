@@ -2,32 +2,32 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Riley AI – Gemini Code Generator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Riley AI</title>
 
 <style>
+
 body{
-background:#0b0f17;
-color:#e6f1ff;
-font-family:system-ui,Segoe UI,Roboto;
 margin:0;
+font-family:system-ui;
+background:#0f172a;
+color:#e2e8f0;
 display:flex;
 flex-direction:column;
 height:100vh;
 }
 
 #topbar{
-background:#111827;
-padding:10px 16px;
+background:#020617;
+padding:12px;
 display:flex;
 align-items:center;
 gap:10px;
-border-bottom:1px solid #1f2937;
+border-bottom:1px solid #1e293b;
 }
 
 #title{
 font-weight:600;
-color:#60a5fa;
 }
 
 #chat{
@@ -36,7 +36,7 @@ overflow:auto;
 padding:20px;
 display:flex;
 flex-direction:column;
-gap:16px;
+gap:14px;
 }
 
 .msg{
@@ -46,39 +46,36 @@ line-height:1.6;
 
 .user{
 align-self:flex-end;
-background:#1f2937;
+background:#1e293b;
 padding:10px 14px;
 border-radius:8px;
 }
 
 .ai{
 align-self:flex-start;
-background:#111827;
+background:#020617;
+border:1px solid #1e293b;
 padding:12px 16px;
 border-radius:8px;
-border:1px solid #1f2937;
-}
-
-code{
-background:#020617;
-padding:3px 6px;
-border-radius:4px;
-font-family:monospace;
 }
 
 pre{
 background:#020617;
 padding:14px;
 border-radius:6px;
+border:1px solid #1e293b;
 overflow:auto;
-border:1px solid #1f2937;
+}
+
+code{
+font-family:monospace;
 }
 
 #inputbar{
 display:flex;
 gap:10px;
 padding:14px;
-border-top:1px solid #1f2937;
+border-top:1px solid #1e293b;
 background:#020617;
 }
 
@@ -87,8 +84,8 @@ flex:1;
 resize:none;
 height:60px;
 background:#020617;
-border:1px solid #1f2937;
-color:#e6f1ff;
+border:1px solid #1e293b;
+color:#e2e8f0;
 padding:10px;
 border-radius:6px;
 }
@@ -97,8 +94,8 @@ button{
 background:#2563eb;
 border:none;
 padding:10px 16px;
-color:white;
 border-radius:6px;
+color:white;
 cursor:pointer;
 }
 
@@ -106,71 +103,27 @@ button:hover{
 background:#1d4ed8;
 }
 
-#apikeymodal{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,0.8);
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-#apikeybox{
-background:#020617;
-padding:30px;
-border-radius:10px;
-width:420px;
-}
-
-#apikeybox input{
-width:100%;
-padding:10px;
-margin-top:10px;
-background:#020617;
-border:1px solid #1f2937;
-color:white;
-border-radius:6px;
-}
 </style>
 </head>
 
 <body>
 
 <div id="topbar">
-<div id="title">Riley AI – Gemini Code Generator</div>
+<div id="title">Riley AI</div>
 </div>
 
 <div id="chat"></div>
 
 <div id="inputbar">
-<textarea id="prompt" placeholder="Ask for code, explanations, apps..."></textarea>
+<textarea id="prompt"></textarea>
 <button onclick="send()">Send</button>
-</div>
-
-<div id="apikeymodal">
-<div id="apikeybox">
-<h3>Enter Gemini API Key</h3>
-<p>Get a free key at:</p>
-<p>https://aistudio.google.com/app/apikey</p>
-<input id="apikey" placeholder="Paste API key here"/>
-<button onclick="saveKey()">Save</button>
-</div>
 </div>
 
 <script>
 
-let API_KEY = localStorage.getItem("gemini_key") || ""
-let history = []
-
-if(API_KEY){
-document.getElementById("apikeymodal").style.display="none"
-}
-
-function saveKey(){
-API_KEY = document.getElementById("apikey").value.trim()
-localStorage.setItem("gemini_key",API_KEY)
-document.getElementById("apikeymodal").style.display="none"
-}
+let API_KEY=""
+let history=[]
+let abortCtrl=null
 
 function addMessage(text,role){
 
@@ -199,11 +152,11 @@ return str
 .replace(/</g,"&lt;")
 .replace(/>/g,"&gt;")
 }
-
-async function send(){
+  async function send(){
 
 const prompt=document.getElementById("prompt").value.trim()
-if(!prompt) return
+
+if(!prompt)return
 
 document.getElementById("prompt").value=""
 
@@ -219,6 +172,10 @@ thinking.className="msg ai"
 thinking.innerHTML="Thinking..."
 document.getElementById("chat").appendChild(thinking)
 
+abortCtrl=new AbortController()
+
+try{
+
 const body={
 contents:history,
 generationConfig:{
@@ -227,12 +184,11 @@ maxOutputTokens:8192
 }
 }
 
-try{
-
 const res=await fetch(
-`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="+API_KEY,
 {
 method:"POST",
+signal:abortCtrl.signal,
 headers:{
 "Content-Type":"application/json"
 },
@@ -251,7 +207,7 @@ return
 
 let text=data.candidates?.[0]?.content?.parts
 ?.map(p=>p.text)
-.join("") || "No response."
+.join("") || ""
 
 history.push({
 role:"model",
@@ -264,6 +220,21 @@ addMessage(text,"ai")
 
 thinking.remove()
 addMessage("Request failed: "+err.message,"ai")
+
+}
+
+}
+  window.onload=()=>{
+
+API_KEY=localStorage.getItem("gemini_key")||""
+
+if(!API_KEY){
+
+API_KEY=prompt(
+"Enter your Gemini API key.\n\nGet one from:\nhttps://aistudio.google.com/app/apikey"
+)
+
+localStorage.setItem("gemini_key",API_KEY)
 
 }
 

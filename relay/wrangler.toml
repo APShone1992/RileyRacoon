@@ -1,0 +1,4 @@
+# filename: relay/wrangler.toml
+name = "riley-relay"
+main = "worker.js"
+compatibility_date = "2024-11-21"

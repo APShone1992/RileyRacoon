@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Riley Web Pull — No Signup Needed</title>
+<style>
+body {
+  background:#0b0b0b;
+  color:#eee;
+  font-family: Arial, sans-serif;
+  padding:20px;
+}
+input, button {
+  padding:10px;
+  font-size:16px;
+}
+#output {
+  white-space: pre-wrap;
+  background:#1b1b1b;
+  padding:20px;
+  margin-top:20px;
+  border:1px solid #333;
+  max-height:600px;
+  overflow:auto;
+}
+.container {
+  max-width:900px;
+  margin:auto;
+}
+label {
+  font-size:14px;
+  opacity:0.8;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🌐 Simple Web Pull (No Login Needed)</h1>
+<p>This tool pulls webpage text using the free <strong>AllOrigins</strong> proxy (no API key, no signup) and extracts readable text from HTML.</p>
+
+<label>Enter a webpage URL:</label><br>
+<input id="url" style="width:80%" placeholder="https://en.wikipedia.org/wiki/Qlik">
+<button onclick="pull()">Pull Page</button>
+
+<div id="output"></div>
+
+<script>
+// Escape HTML for safe preview
+function esc(t) {
+  return t.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Main pull function
+async function pull() {
+  const u = document.getElementById("url").value.trim();
+  if(!u) return;
+
+  document.getElementById("output").innerHTML = "⟳ Fetching...";
+
+  // AllOrigins is a free, open CORS proxy (no signup, no API key)
+  // https://api.allorigins.win/
+  const apiURL = "https://api.allorigins.win/raw?url=" + encodeURIComponent(u);
+
+  try {
+    const r = await fetch(apiURL);
+
+    if (!r.ok) {
+      document.getElementById("output").innerHTML = "❌ Error: " + r.status;
+      return;
+    }
+
+    const html = await r.text();
+
+    // Simple extraction: remove scripts, styles, tags → readable text
+    let text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<noscript[\s\S]*?<\/noscript>/gi, "")
+      .replace(/<(br|p|div|li|ul|ol|h[1-6])[^>]*>/gi, "\n")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s{2,}/g, " ")
+      .replace(/\n{2,}/g, "\n")
+      .trim();
+
+    document.getElementById("output").innerHTML = "<h3>Result:</h3>" + esc(text);
+
+  } catch (e) {
+    document.getElementById("output").innerHTML = "❌ Error: " + e.message;
+  }
+}
+</script>
+
+</div>
+</body>
+</html>

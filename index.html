@@ -6,9 +6,9 @@
 <title>Riley Raccoon — Browser‑Only (Unlimited, Pro)</title>
 
 <!-- JSZip (zip export) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-w/2gR3k6bAOYK3W+QJQyqFK0oC8cRZmThb56w0YH9VYvTt1Y1H7fA1e4w0luzC2Z8xN2qbJwR6s6G8ZkQX4Hng==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-dJ6Tq1J2jWy8nW3Vh8m7mI+iR0/Ba3+o+EtM3Wzq3+0s0U0a7QxYk0xaD4wY0g7c0mZcU1o3C4Cz7uE5y8m1dg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-<!-- Fonts -->
+<!-- Google Fonts -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600;700&display=swap"/>
 
 <style>
@@ -22,6 +22,7 @@
 
 #topbar{height:60px;background:var(--b1);border-bottom:1px solid #004477;display:flex;align-items:center;padding:0 16px;gap:12px}
 #logo{display:flex;align-items:center;gap:12px}
+#logo-slot svg{width:80px;height:68px;display:block;filter:drop-shadow(0 0 5px #00aaff77) drop-shadow(0 0 14px #00aaff22)}
 #logo-text{line-height:1.1}
 #logo-name{font-family:var(--fhd);font-size:20px;letter-spacing:.12em;color:var(--eb);font-weight:700}
 #logo-sub{font-family:var(--fco);font-size:10px;color:#7aa8c9;letter-spacing:.18em}
@@ -86,16 +87,10 @@ dialog{border:1px solid #004477;background:#081220;color:#dff;padding:14px;borde
 </head>
 <body>
 
-<!-- ───────────────── Topbar with your LOGO (full SVG restored) ───────────────── -->
+<!-- ───────────────── Topbar with LOGO ───────────────── -->
 <div id="topbar">
   <div id="logo">
-    <!-- YOUR ORIGINAL RILEY RACCOON SVG (full) -->
-    <svg id="riley-svg" viewBox="0 0 130 82" xmlns="http://www.w3.org/2000/svg" width="80" height="68" style="overflow:visible;filter:drop-shadow(0 0 5px #00aaff77) drop-shadow(0 0 14px #00aaff22)">
-      <!-- (PASTE THE FULL SVG BODY FROM YOUR ORIGINAL — omitted here for brevity) -->
-      <!-- BEGIN SVG -->
-      <!-- TAIL / BODY / SIDE / FRONT paths ... (your full content from earlier message) -->
-      <!-- END SVG -->
-    </svg>
+    <div id="logo-slot" title="Riley Raccoon logo (auto-loaded)"></div>
     <div id="logo-text">
       <div id="logo-name">RILEY RACCOON</div>
       <div id="logo-sub">BROWSER‑ONLY · UNLIMITED</div>
@@ -161,14 +156,15 @@ dialog{border:1px solid #004477;background:#081220;color:#dff;padding:14px;borde
           <option value="test">Write tests</option>
           <option value="docs">Write docs</option>
         </select>
+
+        <!-- Toggles -->
+        <label class="mini" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="useWeb" checked/> Web lookup</label>
+        <label class="mini" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="useRag" checked/> RAG Memory</label>
+        <label class="mini" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="selfCheck" checked/> Self‑check</label>
+
+        <!-- Model -->
         <input class="mini" id="model-id" size="36" value="Llama-3-8B-Instruct-q4f32_1-MLC" title="WebLLM Model ID (cached after first load)"/>
         <button class="btn" onclick="reloadModel()">↻ Reload</button>
-        <label class="mini" style="display:flex;gap:6px;align-items:center">
-          <input type="checkbox" id="useRag" checked/> RAG Memory
-        </label>
-        <label class="mini" style="display:flex;gap:6px;align-items:center">
-          <input type="checkbox" id="selfCheck" checked/> Self‑check
-        </label>
       </div>
       <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap" id="hints"></div>
     </div>
@@ -235,14 +231,39 @@ dialog{border:1px solid #004477;background:#081220;color:#dff;padding:14px;borde
 <script type="module">
 /* ──────────────────────────────────────────────────────────────────────────────
    Riley — Browser‑Only, Unlimited
-   - WebLLM (streaming)        — webllm.chat.completions.create({ stream:true })  [1](https://webllm.mlc.ai/docs/user/api_reference.html)
-   - Transformers.js embeddings (RAG) on WebGPU                                   [4](https://huggingface.co/docs/transformers.js/guides/webgpu)
-   - Jina Search / Reader (key‑free) with caching                                 [2](https://github.com/jina-ai/reader)[3](https://jina.ai/reader/)
-   - IndexedDB (projects, cache, versions, vectors)                               [8](https://dev.to/mino/browser-storage-deep-dive-cache-vs-indexeddb-for-scalable-pwas-35f4)[9](https://rxdb.info/articles/indexeddb-max-storage-limit.html)
-   - Optional Pyodide (lazy)                                                      [5](https://github.com/pyodide/pyodide/blob/main/docs/usage/quickstart.md)[6](https://pyodide.org/en/0.24.1/usage/downloading-and-deploying.html)
+   - WebLLM (streaming) — OpenAI-like API
+   - Transformers.js embeddings (RAG) on WebGPU
+   - Jina Search / Reader (key‑free) with caching
+   - IndexedDB (projects, cache, versions, vectors)
+   - Optional Pyodide (lazy)
 ────────────────────────────────────────────────────────────────────────────── */
-import * as webllm from "https://esm.run/@mlc-ai/web-llm";         // WebLLM engine (OpenAI-like API)  [1](https://webllm.mlc.ai/docs/user/api_reference.html)
-import { pipeline } from "https://esm.run/@huggingface/transformers"; // Transformers.js pipelines (embeddings)  [4](https://huggingface.co/docs/transformers.js/guides/webgpu)
+import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+import { pipeline } from "https://esm.run/@huggingface/transformers";
+
+/* ========== Logo loader (loads your ./logo.svg, falls back to a mini SVG) ========== */
+function logoFallbackSVG(){
+  return `
+  <svg viewBox="0 0 64 48" xmlns="http://www.w3.org/2000/svg" aria-label="Riley logo">
+    <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#00aaff"/><stop offset="1" stop-color="#7e5bef"/></linearGradient></defs>
+    <rect rx="8" ry="8" x="2" y="2" width="60" height="44" fill="url(#g)" opacity=".18" stroke="#0a2d45"/>
+    <circle cx="22" cy="20" r="8" fill="#cfd8e3"/><circle cx="42" cy="20" r="8" fill="#cfd8e3"/>
+    <circle cx="22" cy="20" r="4" fill="#0ea5e9"/><circle cx="42" cy="20" r="4" fill="#0ea5e9"/>
+    <path d="M16 32 Q32 38 48 32" stroke="#94a3b8" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+async function loadLogo(){
+  const slot = document.getElementById('logo-slot');
+  try{
+    const res = await fetch('logo.svg', {cache:'no-cache'});
+    if(res.ok){
+      const svg = await res.text();
+      slot.innerHTML = svg;
+      return;
+    }
+  }catch(_){}
+  slot.innerHTML = logoFallbackSVG();
+}
+document.addEventListener('DOMContentLoaded', loadLogo);
 
 /* ========== State & Storage ========== */
 const LS = {
@@ -255,8 +276,6 @@ let hist  = [];
 let engine = null;      // WebLLM engine
 let busy = false;
 let selFile = null;
-let ragOn = true;       // memory toggle
-let selfCheckOn = true; // self-check pass
 let embeddings = null;  // transformers.js pipeline (feature-extraction)
 let embeddingReady = false;
 
@@ -310,7 +329,6 @@ function addOrUpdateFile(fn, code, lang){
   const p=ap(); const ex=p.files.findIndex(f=>f.filename===fn);
   const now=Date.now();
   if(ex>=0){
-    // versioning: push previous into history store
     saveVersion(fn, p.files[ex].code, 'AI', now);
     p.files[ex].code = code; p.files[ex].lang = lang||p.files[ex].lang;
   } else {
@@ -320,13 +338,12 @@ function addOrUpdateFile(fn, code, lang){
   save(); renderTree();
 }
 function buildCard(raw, langHint){
-  // filename on line 1 rule
   const m = raw.match(/^(?:\/\/|#|<!--|\/\*)\s*filename:\s*(.+?)(?:\s*-->|\s*\*\/)?\s*$/im);
   const fn = m ? m[1].trim() : inferName(langHint||'text', raw);
   addOrUpdateFile(fn, raw, langHint);
   return `<div style="border:1px solid #1d3349;border-radius:8px;overflow:hidden;margin:8px 0">
     <div style="display:flex;justify-content:space-between;align-items:center;background:#0b1a2a;padding:6px 10px">
-      <span style="font-family:var(--fco);font-size:11px;color:#8fcfff">${fn}</span>
+      <span style="font-family:var(--fco);font-size:11px;color:#8fcfff">${escapeHtml(fn)}</span>
       <div style="display:flex;gap:6px">
         <button class="btn" onclick="downloadFile('${fn.replace(/'/g,"\\'")}')">⬇</button>
         <button class="btn" onclick="openRunFor('${fn.replace(/'/g,"\\'")}')">▶</button>
@@ -337,7 +354,6 @@ function buildCard(raw, langHint){
 }
 function renderTree(){
   const p=ap(); const files=p?.files||[];
-  // Simple virtual folder split by "/"
   const grouped = {};
   for(const f of files){
     const parts = f.filename.split('/');
@@ -370,7 +386,7 @@ function openDB(){ return new Promise((resolve,reject)=>{ const r = indexedDB.op
   }; r.onsuccess=()=>{ db=r.result; resolve(db); }; });}
 function tx(store, mode='readonly'){ return db.transaction(store, mode).objectStore(store); }
 async function saveVersion(filename, code, origin, ts){ if(!db) await openDB(); const p=ap(); const rec={ filename, code, origin, ts, project: p?.name || '' }; await new Promise((res,rej)=>{ const req=tx(STORE_VER,'readwrite').add(rec); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
-async function listVersions(filename){ if(!db) await openDB(); return await new Promise((res,rej)=>{ const idx=tx(STORE_VER).index('by_file'); const out=[]; idx.openCursor(IDBKeyRange.only(filename), 'prev').onsuccess=(ev)=>{ const c=ev.target.result; if(c){ out.push(c.value); c.continue(); } else res(out); }; idx.openCursor().onerror=()=>rej(); }); }
+async function listVersions(filename){ if(!db) await openDB(); return await new Promise((res,rej)=>{ const idx=tx(STORE_VER).index('by_file'); const out=[]; const req=idx.openCursor(IDBKeyRange.only(filename), 'prev'); req.onsuccess=(ev)=>{ const c=ev.target.result; if(c){ out.push(c.value); c.continue(); } else res(out); }; req.onerror=()=>rej(); }); }
 window.showHistory = async ()=>{ if(!selFile){ alert('Select a file first'); return; } const list = await listVersions(selFile); const el=document.getElementById('histList'); el.innerHTML = list.map(v=>`
   <div style="border:1px solid #1d3349;border-radius:8px;margin:6px 0">
     <div style="display:flex;justify-content:space-between;background:#0b1a2a;padding:6px 10px"><span>${new Date(v.ts).toLocaleString()} · ${v.origin}</span>
@@ -388,30 +404,48 @@ async function cacheGet(key){ if(!db) await openDB(); return await new Promise((
 async function cachePut(key, value, ttlHours){ if(!db) await openDB(); const ts=Date.now(), ttl=ttlHours*3600*1000; return await new Promise((res,rej)=>{ const req=tx(STORE_CACHE,'readwrite').put({key, value, ts, exp: ts+ttl}); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
 
 /* ========== Jina Search / Reader (with allow‑list & TTL) ========== */
-function getAllow(){ return (localStorage.getItem(LS.allow)||'').split(',').map(s=>s.trim()).filter(Boolean); }
+function getAllow(){ return (localStorage.getItem(LS.allow)||'').split(',').map(s=>s.trim().toLowerCase().replace(/^www\./,'')).filter(Boolean); }
 function getTTL(){ const h=parseInt(localStorage.getItem(LS.ttl)||'24',10); return Math.min(Math.max(h,1),168); }
 async function jinaSearch(q, k=3){
-  const key=`srch:${q}`; const ttl=getTTL(); const c=await cacheGet(key); if(c && c.exp>Date.now()) return c.value;
-  const r = await fetch(`https://s.jina.ai/${encodeURIComponent(q)}`); const j = await r.json(); const allow=getAllow();
-  const results = !allow.length ? j : (j||[]).filter(x=> allow.some(d=> (x.url||'').includes(d)));
-  const top=(results||[]).slice(0,k); await cachePut(key, top, ttl); return top;
+  const key=`srch:${q}`; const ttl=getTTL();
+  try{ const c=await cacheGet(key); if(c && c.exp>Date.now()) return c.value; }catch(_){}
+  const res = await fetch(`https://s.jina.ai/${encodeURIComponent(q)}`, { mode:'cors' });
+  if(!res.ok) throw new Error(`search HTTP ${res.status}`);
+  const j = await res.json(); // [{title,url,content,...}]
+  const allow = getAllow();
+  const filtered = allow.length
+    ? (j||[]).filter(x=>{
+        try{
+          const host = new URL(x.url).hostname.toLowerCase().replace(/^www\./,'');
+          return allow.some(d => host.endsWith(d));
+        }catch(_){ return false; }
+      })
+    : j;
+  const top = (filtered||[]).slice(0,k);
+  try{ await cachePut(key, top, ttl); }catch(_){}
+  return top;
 }
-async function jinaRead(url){
-  const key=`page:${url}`; const ttl=getTTL(); const c=await cacheGet(key); if(c && c.exp>Date.now()) return c.value;
-  const r = await fetch(`https://r.jina.ai/${url}`); const t= await r.text(); await cachePut(key, t, ttl); return t;
+async function jinaRead(u){
+  const key=`page:${u}`; const ttl=getTTL();
+  try{ const c=await cacheGet(key); if(c && c.exp>Date.now()) return c.value; }catch(_){}
+  const res = await fetch(`https://r.jina.ai/${u}`, { mode:'cors' });
+  if(!res.ok) throw new Error(`reader HTTP ${res.status}`);
+  const text = await res.text();
+  try{ await cachePut(key, text, ttl); }catch(_){}
+  return text;
 }
 
 /* ========== Embeddings (RAG memory) ========== */
 async function ensureEmbeddings(){
   if(embeddingReady) return;
-  // small, fast embedding model; WebGPU device
+  // small, fast embedding model
   embeddings = await pipeline("feature-extraction", "mixedbread-ai/mxbai-embed-xsmall-v1", { device: "webgpu" });
   embeddingReady = true;
 }
 async function embed(text){ await ensureEmbeddings(); const out = await embeddings(text, { pooling:"mean", normalize:true }); return Array.from(out.data); }
 async function indexFileChunks(filename, code){
   if(!db) await openDB(); if(!embeddingReady) await ensureEmbeddings();
-  const chunks = chunkText(code, 800); // ~800 token-ish heuristic
+  const chunks = chunkText(code, 800);
   for(const ch of chunks){
     const vec = await embed(ch);
     await new Promise((res,rej)=>{ const req=tx(STORE_VECT,'readwrite').add({ filename, chunk: ch, vec, ts: Date.now() }); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); });
@@ -431,9 +465,7 @@ async function searchMemory(query, k=8){
 async function loadEngine(modelId){
   status.textContent='Engine: loading…';
   try{
-    engine = await webllm.CreateEngine(modelId, {
-      initProgressCallback: (rep)=>{ status.textContent = `Engine: ${rep.text}`; }
-    });
+    engine = await webllm.CreateEngine(modelId, { initProgressCallback: (rep)=>{ status.textContent = `Engine: ${rep.text}`; } });
     status.textContent = `Engine: ready (${modelId})`;
     ctxModel.textContent = `Model: ${modelId}`;
   }catch(e){ status.className='stag err'; status.textContent = `Engine error: ${e.message||e}`; }
@@ -444,14 +476,12 @@ async function reloadModel(){ engine=null; status.textContent='Engine: reloading
 function getModel(){ const v=document.getElementById('model-id').value.trim() || 'Llama-3-8B-Instruct-q4f32_1-MLC'; localStorage.setItem(LS.webllmModel, v); return v; }
 async function send(){
   if(busy) return;
-  const ta = document.getElementById('inp');
-  const text = ta.value.trim(); if(!text) return;
+  const ta = document.getElementById('inp'); const text = ta.value.trim(); if(!text) return;
   ta.value=''; ta.style.height='';
 
   busy = true;
   addMsg('user', escapeHtml(text).replace(/\n/g,'<br/>'));
 
-  // Presets merge (if any were toggled via pills)
   const lang = document.getElementById('lang').value;
   const mode = document.getElementById('mode').value;
   const hints = [
@@ -466,19 +496,27 @@ async function send(){
     mode==='docs'    ? 'Write full documentation: README, inline comments, and docstrings.' : ''
   ].filter(Boolean).join(' ');
 
-  // Current project context (file list only)
   const p = ap();
   const ctxFiles = p?.files?.length ? `\n[CURRENT PROJECT: "${p.name}"\nExisting files:\n${p.files.map(f=>`  - ${f.filename} (${f.code.length}b)`).join('\n')}\nBuild on top of these. Only output new or changed files.]` : '';
 
-  // Jina grounding (short build-like prompts)
-  let webContext='', sources=[];
-  if(/build|create|write|generate/i.test(text) && text.length<600){
-    addMsg('assistant', `<span class="stag">searching: "${escapeHtml(text.slice(0,90))}…"</span>`);
-    const hits = await jinaSearch(text, 3);
-    const docs = await Promise.all(hits.map(h=>jinaRead(h.url)));
-    sources = hits.map((h,i)=>({title:h.title,url:h.url,content: (docs[i]||'').slice(0,1000)}));
-    const maxCtx = 1200; // governor
-    webContext = sources.map((s,i)=>`\n\n[Source ${i+1}] ${s.title}\n${s.content.slice(0,maxCtx)}`).join('\n');
+  // Explicit Web lookup (toggle)
+  let webContext = '';
+  let sources = [];
+  if (document.getElementById('useWeb').checked) {
+    const holder = addMsg('assistant', `<span class="stag">searching…</span>`);
+    try{
+      const hits = await jinaSearch(text, 3);
+      if(!hits.length){
+        holder.innerHTML = `<span class="stag amber">no web results (check Settings → allow‑list)</span>`;
+      } else {
+        const docs = await Promise.all(hits.map(h => jinaRead(h.url)));
+        sources = hits.map((h,i)=>({ title: h.title, url: h.url, content: (docs[i]||'').slice(0,1000) }));
+        webContext = sources.map((s,i)=>`\n\n[Source ${i+1}] ${s.title}\n${s.content}`).join('\n');
+        holder.innerHTML = `<span class="stag">found ${sources.length} source(s)</span>`;
+      }
+    }catch(e){
+      holder.innerHTML = `<span class="stag err">lookup failed: ${escapeHtml(e.message||String(e))}</span>`;
+    }
   }
 
   // RAG memory
@@ -494,26 +532,24 @@ async function send(){
   try{
     if(!engine) await loadEngine(getModel());
 
-    // ========== Streaming request ==========
+    // Streaming
     const req = { messages: hist.map(h=>({ role:h.role, content: h.content })), temperature:0.2, max_tokens:4096, stream:true };
     const streamOrResp = await engine.chat.completions.create(req);
     let full = ''; const streamBub = addStreamMsg();
 
-    // AsyncIterable per API docs; accumulate & render
     if (streamOrResp && streamOrResp[Symbol.asyncIterator]) {
       for await (const chunk of streamOrResp){
         const delta = (chunk?.choices?.[0]?.delta?.content) || (chunk?.delta?.content) || (chunk?.choices?.[0]?.message?.content) || '';
         if(delta){ full += delta; streamBub.innerText = full; msgsEl.scrollTop = msgsEl.scrollHeight; }
       }
     } else {
-      // Fallback non-stream
       const resp = streamOrResp;
       full = resp?.choices?.[0]?.message?.content || '';
       streamBub.innerText = full;
     }
 
     // Replace streaming bubble with formatted cards
-    streamBub.parentElement.parentElement.remove(); // remove bubble row
+    streamBub.parentElement.parentElement.remove();
     const html = renderResponse(full, sources);
     addMsg('assistant', html);
     hist.push({ role:'assistant', content:full });
@@ -533,7 +569,6 @@ async function send(){
     busy = false;
   }
 }
-
 function renderResponse(text, sources){
   const parts = text.split(/(```[\s\S]*?```)/g);
   let html = '';
@@ -555,13 +590,14 @@ function renderResponse(text, sources){
     html = `<div class="copy-bar"><span style="font-family:var(--fco);font-size:10px;color:#8fb">Generated <b>${generated}</b> files</span><button class="btn" onclick="zipProject()">⬇ ZIP</button></div>` + html;
   }
   if(sources?.length){
-    html += `<div style="margin-top:8px;font-family:var(--fco);font-size:11px;color:#9ed">Sources: ${sources.map((s,i)=>`[${i+1}] <a href="${s.url}" target="_blank" style="color:#8fd">${escapeHtml(s.title||s.url)}</a>`).join(' · ')}</div>`;
+    html += `<div style="margin-top:8px;font-family:var(--fco);font-size:11px;color:#9ed">
+      Sources: ${sources.map((s,i)=>`<a href="${s.url}" target="_blank" rel="noopener">[${i+1}] ${escapeHtml(s.title||s.url)}</a>`).join(' · ')}
+    </div>`;
   }
   return html;
 }
 async function indexNewFilesToMemory(fullText){
   if(!document.getElementById('useRag').checked) return;
-  // Collect code blocks and index them
   const blocks = [...fullText.matchAll(/```[\s\S]*?```/g)].map(m=>m[0]);
   for(const part of blocks){
     const inner = part.slice(3,-3);
@@ -571,16 +607,14 @@ async function indexNewFilesToMemory(fullText){
     if(!code) continue;
     const m = code.match(/^(?:\/\/|#|<!--|\/\*)\s*filename:\s*(.+?)(?:\s*-->|\s*\*\/)?\s*$/im);
     const fn = m ? m[1].trim() : inferName(lang||'text', code);
-    // Secret scanning & Qlik lint warnings
     scanSecrets(fn, code);
     if(fn.toLowerCase().endsWith('.qvs')) lintQlik(fn, code);
-    // Index to vector store
     await indexFileChunks(fn, code);
   }
 }
 
 /* ========== Self‑check pass ========== */
-async function doSelfCheck(assistantText){
+async function doSelfCheck(){
   try{
     const checklist = `Run a quick self-check on the files you just created. Look for:
 - missing files or configs (package.json, requirements.txt, README.md, .gitignore, tests)
@@ -599,11 +633,8 @@ function sandboxHTML(src){ return `<!doctype html><html><body><script>
   (function(){
     const log = (...a)=>parent.postMessage({type:'riley-log', data: a.map(x=>String(x)).join(' ')}, '*');
     const err = (e)=>parent.postMessage({type:'riley-err', data: String(e && (e.stack||e))}, '*');
-    try {
-      // eslint-disable-next-line no-eval
-      const r = eval(${JSON.stringify(src)});
-      if(r!==undefined) log(r);
-    } catch(e){ err(e); }
+    try { const r = eval(${JSON.stringify(src)}); if(r!==undefined) log(r); }
+    catch(e){ err(e); }
   })();
 </script></body></html>`; }
 window.openRunFor = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return;
@@ -612,7 +643,6 @@ window.runSelected = ()=>{ if(!selFile){ alert('Select a file first'); return; }
   const f=(ap().files||[]).find(x=>x.filename===selFile); if(!f) return;
   if(f.filename.endsWith('.py')){ document.getElementById('pySrc').value = f.code; document.getElementById('dlg-python').showModal(); return; }
   if(!(f.filename.endsWith('.js')||f.filename.endsWith('.mjs')||f.filename.endsWith('.ts'))){ alert('Runner supports JS/TS/Py only'); return; }
-  // Minimal TS support: strip type annotations (naive) just for quick try
   let src = f.code; if(f.filename.endsWith('.ts')) src = src.replace(/:\s*[A-Za-z0-9_<>\[\]\|&: ,?]+/g,'').replace(/interface\s+\w+\s*{[^}]*}/g,'');
   const iframe = document.createElement('iframe'); iframe.sandbox='allow-scripts'; iframe.style.display='none'; document.body.appendChild(iframe);
   window.addEventListener('message', function h(ev){ if(ev.data?.type==='riley-log'||ev.data?.type==='riley-err'){ addMsg('assistant', `<pre>${escapeHtml(ev.data.data)}</pre>`); window.removeEventListener('message',h); setTimeout(()=>iframe.remove(),50); } });
@@ -623,9 +653,8 @@ window.runSelected = ()=>{ if(!selFile){ alert('Select a file first'); return; }
 let pyodide=null;
 async function ensurePyodide(){
   if(pyodide) return pyodide;
-  const s = document.createElement('script'); s.src = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"; // official CDN  [6](https://pyodide.org/en/0.24.1/usage/downloading-and-deploying.html)
+  const s = document.createElement('script'); s.src = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js";
   await new Promise(res=>{ s.onload=res; document.body.appendChild(s); });
-  // global loadPyodide now available
   // @ts-ignore
   pyodide = await loadPyodide(); return pyodide;
 }
@@ -659,7 +688,7 @@ window.saveSettings = async ()=>{
 /* ========== Hints bar ========== */
 const HINTS = [
   'Build a Node API with JWT auth and Swagger docs',
-  'Create a React + Tailwind dashboard with charts and mock API',
+  'Create a React + Tailwind dashboard with charts and a mock API',
   'Write a Qlik Sense load script with master calendar & QVD incrementals',
   'Generate unit tests for this codebase',
   'Refactor this file for clarity and performance',
@@ -690,7 +719,7 @@ window.exportChat = ()=>{ const p=ap(); if(!p) return; let md = `# ${p.name} —
 
 window.genMissing = ()=>{ const p=ap(); const all=p.files.map(f=>f.filename); const need=[]; if(all.some(f=>f.endsWith('.py'))&&!all.includes('requirements.txt')) need.push('requirements.txt'); if(all.some(f=>/\.(js|ts|jsx|tsx|mjs)$/.test(f))&&!all.includes('package.json')) need.push('package.json'); if(!all.includes('README.md')) need.push('README.md'); if(!all.includes('.gitignore')) need.push('.gitignore'); if(!need.length){ addMsg('assistant','<span class="stag">No missing config files detected</span>'); return; } const req = `Generate the following missing root files for this project with correct content:\n- ${need.join('\n- ')}\nUse our filename rule on line 1. Include run/setup steps in README.`; const ta=document.getElementById('inp'); ta.value=req; send(); };
 
-/* ========== Qlik Script Linter (basic heuristics) ========== */
+/* ========== Qlik Script Linter (basic heuristics) & Secret scan ========== */
 function lintQlik(fn, code){
   const warns=[];
   if(/(LOAD\s+[^\n]+\n)+\s*LOAD\s/i.test(code) && !/QUALIFY|UNQUALIFY/i.test(code)) warns.push('Consider QUALIFY/UNQUALIFY to avoid synthetic keys.');
@@ -698,8 +727,6 @@ function lintQlik(fn, code){
   if(/SECTION\s+ACCESS/i.test(code) && !/SECTION\s+APPLICATION/i.test(code)) warns.push('SECTION APPLICATION missing after SECTION ACCESS?');
   if(warns.length){ addMsg('assistant', `<div class="bub"><b>Qlik lint for ${escapeHtml(fn)}:</b><br/>• ${warns.map(escapeHtml).join('<br/>• ')}</div>`); }
 }
-
-/* ========== Secret scanning (very simple patterns) ========== */
 function scanSecrets(fn, code){
   const pats=[ /AKIA[0-9A-Z]{16}/, /-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY-----/, /ghp_[A-Za-z0-9]{36,}/, /xox[baprs]-[0-9A-Za-z-]{10,}/ ];
   if(pats.some(re=>re.test(code))){ addMsg('assistant', `<span class="stag err">Potential secret detected in ${escapeHtml(fn)} — review before committing.</span>`); }
@@ -726,4 +753,3 @@ ta.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDe
 </script>
 </body>
 </html>
-``

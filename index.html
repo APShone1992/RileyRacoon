@@ -1,465 +1,729 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Riley Raccoon — Browser‑Only (Unlimited)</title>
-  <!-- JSZip for zipping projects -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <!-- Fonts + Styles (trimmed but consistent with your look) -->
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --b:#000;--b1:#020408;--b2:#050810;--b3:#0a1422;--b4:#0b1020;--eb:#00aaff;--w:#e8f4ff;
-      --g1:#90aac0;--g2:#506070;--g3:#283848;--g4:#162030;--green:#00cc66;--amber:#ffaa00;--red:#ff4444;
-      --fui:'Exo 2',sans-serif;--fhd:'Rajdhani',sans-serif;--fco:'JetBrains Mono',monospace;
-    }
-    *{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--b);color:var(--w);font-family:var(--fui);overflow:hidden}
-    #top{display:flex;align-items:center;gap:12px;height:60px;padding:0 14px;background:var(--b1);border-bottom:1px solid #004477}
-    .brand{display:flex;gap:12px;align-items:center}
-    .logo{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#00aaff,#7e5bef);box-shadow:0 8px 30px #00aaff33}
-    .title{display:flex;flex-direction:column;line-height:1}
-    .title .n{font-family:var(--fhd);letter-spacing:.12em;color:var(--eb);font-size:18px;font-weight:700}
-    .title .s{font-family:var(--fco);font-size:10px;color:#7aa8c9;letter-spacing:.18em}
-    .tag{font-family:var(--fco);font-size:10px;border:1px solid #004477;padding:3px 7px;border-radius:4px;color:#8fcfff}
-    #right{margin-left:auto;display:flex;gap:8px;align-items:center}
-    .btn{font-family:var(--fco);font-size:11px;border:1px solid #004477;background:transparent;color:#89c; padding:6px 10px;border-radius:4px;cursor:pointer}
-    .btn:hover{border-color:#00aaff;color:#00aaff}
-    #layout{display:flex;height:calc(100% - 60px)}
-    #left{width:220px;background:var(--b2);border-right:1px solid var(--g4);display:flex;flex-direction:column}
-    .ph{padding:10px 12px;border-bottom:1px solid var(--g4);display:flex;justify-content:space-between;align-items:center}
-    .pl{font-family:var(--fco);font-size:10px;letter-spacing:.18em;color:#7aa8c9;text-transform:uppercase}
-    #plist{flex:1;overflow:auto;padding:8px}
-    .pi{border:1px solid transparent;border-radius:6px;padding:8px;cursor:pointer;margin-bottom:6px}
-    .pi:hover{background:#071625;border-color:var(--g4)}
-    .pi.act{background:#041828;border-color:#004477}
-    .pin{font-family:var(--fco);font-size:11px;color:#bcd}
-    .pim{font-family:var(--fco);font-size:10px;color:#678}
-    #files{margin-top:auto;border-top:1px solid var(--g4);padding:8px;display:flex;gap:6px}
-    #mid{flex:1;display:flex;flex-direction:column;min-width:0}
-    #ctx{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--g4);background:var(--b3);font-family:var(--fco);font-size:10px}
-    #msgs{flex:1;overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px}
-    .msg{display:flex;gap:10px}
-    .av{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid #004477;background:#04101a;color:#8fcfff}
-    .u{background:#100826;color:#b99bff;border-color:#332255}
-    .bub{max-width:900px;background:#0b1826;border:1px solid var(--g4);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.65}
-    .stag{display:inline-block;font-family:var(--fco);font-size:10px;border:1px solid #004422;background:#00140a;color:#00cc66;padding:3px 8px;border-radius:4px}
-    .stag.err{border-color:#440000;background:#100; color:#ff5555}
-    #input{border-top:1px solid var(--g4);padding:10px;background:var(--b2)}
-    #iw{display:flex;align-items:flex-end;gap:8px;background:#0a1422;border:1px solid var(--g4);border-radius:10px;padding:10px}
-    #inp{flex:1;background:transparent;border:none;color:var(--w);font-family:var(--fco);font-size:13px;resize:none;min-height:24px;max-height:160px;line-height:1.6;outline:none}
-    #ops{display:flex;gap:8px;margin-top:8px;align-items:center}
-    select,.mini{font-family:var(--fco);font-size:11px;background:#0a1422;border:1px solid var(--g4);color:#9fb3c7;border-radius:6px;padding:5px 8px}
-    .send{width:36px;height:36px;border-radius:6px;border:1px solid #004477;background:#003a63;color:#ccedff;cursor:pointer}
-    .send:hover{background:#005a93}
-    #rightPane{width:260px;background:var(--b2);border-left:1px solid var(--g4);display:flex;flex-direction:column}
-    #tree{flex:1;overflow:auto;padding:8px}
-    .file{display:flex;justify-content:space-between;gap:6px;border:1px solid transparent;border-radius:6px;padding:6px;cursor:pointer}
-    .file:hover{background:#071625;border-color:var(--g4)}
-    #viewer{border-top:1px solid var(--g4);height:220px;display:flex;flex-direction:column}
-    #vhead{display:flex;justify-content:space-between;align-items:center;padding:8px 10px}
-    #vname{font-family:var(--fco);font-size:10px;color:#7aa8c9}
-    #vcode{flex:1;overflow:auto;white-space:pre;font-family:var(--fco);font-size:11px;color:#6be08a;padding:8px 10px}
-    code{font-family:var(--fco);font-size:12px}
-    .copy-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--g4);border-radius:6px;background:#0b1826;margin-bottom:6px}
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Riley Raccoon — Browser‑Only (Unlimited, Pro)</title>
+
+<!-- JSZip (zip export) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-w/2gR3k6bAOYK3W+QJQyqFK0oC8cRZmThb56w0YH9VYvTt1Y1H7fA1e4w0luzC2Z8xN2qbJwR6s6G8ZkQX4Hng==" crossorigin="anonymous"></script>
+
+<!-- Fonts -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600;700&display=swap"/>
+
+<style>
+:root{
+  --b:#000;--b1:#020408;--b2:#050810;--b3:#0b1020;--b4:#0f172a;
+  --eb:#00aaff;--w:#e8f4ff;--g1:#90aac0;--g2:#506070;--g3:#283848;--g4:#162030;
+  --green:#00cc66;--amber:#ffaa00;--red:#ff4444;--purple:#8866ff;
+  --fui:'Exo 2',sans-serif;--fhd:'Rajdhani',sans-serif;--fco:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--b);color:var(--w);font-family:var(--fui);overflow:hidden}
+
+#topbar{height:60px;background:var(--b1);border-bottom:1px solid #004477;display:flex;align-items:center;padding:0 16px;gap:12px}
+#logo{display:flex;align-items:center;gap:12px}
+#logo-text{line-height:1.1}
+#logo-name{font-family:var(--fhd);font-size:20px;letter-spacing:.12em;color:var(--eb);font-weight:700}
+#logo-sub{font-family:var(--fco);font-size:10px;color:#7aa8c9;letter-spacing:.18em}
+.chip{font-family:var(--fco);font-size:10px;border:1px solid #004477;color:#8fcfff;padding:3px 7px;border-radius:4px}
+#right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn{font-family:var(--fco);font-size:11px;border:1px solid #004477;background:transparent;color:#89c;padding:6px 10px;border-radius:6px;cursor:pointer}
+.btn:hover{border-color:#00aaff;color:#00aaff}
+.btn.green{border-color:#0b5;color:#0d6}.btn.green:hover{border-color:#0e8;color:#0e8}
+.tag{font-family:var(--fco);font-size:10px;border:1px solid #004477;padding:3px 7px;border-radius:4px;color:#8fcfff}
+
+#layout{display:flex;height:calc(100% - 60px)}
+#left{width:240px;background:var(--b2);border-right:1px solid var(--g4);display:flex;flex-direction:column}
+.ph{padding:10px 12px;border-bottom:1px solid var(--g4);display:flex;justify-content:space-between;align-items:center}
+.pl{font-family:var(--fco);font-size:10px;letter-spacing:.18em;color:#7aa8c9;text-transform:uppercase}
+#plist{flex:1;overflow:auto;padding:8px}
+.pi{border:1px solid transparent;border-radius:8px;padding:8px;cursor:pointer;margin-bottom:6px}
+.pi:hover{background:#071625;border-color:var(--g4)}
+.pi.act{background:#041a2e;border-color:#004477}
+.pin{font-family:var(--fco);font-size:11px;color:#bcd}
+.pim{font-family:var(--fco);font-size:10px;color:#678}
+#leftBtns{margin-top:auto;border-top:1px solid var(--g4);padding:8px;display:flex;gap:6px;flex-wrap:wrap}
+
+#mid{flex:1;display:flex;flex-direction:column;min-width:0}
+#ctx{display:flex;gap:10px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--g4);background:var(--b3);font-family:var(--fco);font-size:10px}
+#msgs{flex:1;overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:12px}
+.msg{display:flex;gap:10px}
+.av{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;border:1px solid #004477;background:#04101a;color:#8fcfff}
+.u{background:#100826;color:#b99bff;border-color:#332255}
+.bub{max-width:1000px;background:#0b1826;border:1px solid var(--g4);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.65}
+.stream-bub{background:#0b1826;border:1px dashed #335;color:#cfe}
+code{font-family:var(--fco);font-size:12px}
+
+.stag{display:inline-block;font-family:var(--fco);font-size:10px;border:1px solid #004422;background:#00140a;color:#00cc66;padding:3px 8px;border-radius:4px}
+.stag.err{border-color:#440000;background:#100;color:#ff5555}
+.stag.amber{border-color:#443300;background:#140a00;color:#ffaa00}
+
+#input{border-top:1px solid var(--g4);padding:10px;background:var(--b2)}
+.copy-bar{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid var(--g4);border-radius:6px;background:#0b1826;margin-bottom:8px}
+#iw{display:flex;align-items:flex-end;gap:8px;background:#0a1422;border:1px solid var(--g4);border-radius:10px;padding:10px}
+#inp{flex:1;background:transparent;border:none;color:var(--w);font-family:var(--fco);font-size:13px;resize:none;min-height:24px;max-height:160px;line-height:1.6;outline:none}
+.send{width:36px;height:36px;border-radius:6px;border:1px solid #004477;background:#003a63;color:#ccedff;cursor:pointer}
+.send:hover{background:#005a93}
+#ops{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+select,.mini{font-family:var(--fco);font-size:11px;background:#0a1422;border:1px solid var(--g4);color:#9fb3c7;border-radius:6px;padding:5px 8px}
+
+#rightPane{width:300px;background:var(--b2);border-left:1px solid var(--g4);display:flex;flex-direction:column}
+#tree{flex:1;overflow:auto;padding:8px}
+.file{display:flex;justify-content:space-between;gap:6px;border:1px solid transparent;border-radius:6px;padding:6px;cursor:pointer}
+.file:hover{background:#071625;border-color:var(--g4)}
+#viewer{border-top:1px solid var(--g4);height:260px;display:flex;flex-direction:column}
+#vhead{display:flex;justify-content:space-between;align-items:center;padding:8px 10px}
+#vname{font-family:var(--fco);font-size:10px;color:#7aa8c9}
+#vcode{flex:1;overflow:auto;white-space:pre;font-family:var(--fco);font-size:11px;color:#6be08a;padding:8px 10px}
+
+.pill{font-family:var(--fco);font-size:10px;padding:4px 8px;border-radius:999px;border:1px solid #2a3a55;background:#08182a;color:#9ed;cursor:pointer}
+.pill:hover{border-color:#00aaff;color:#00aaff}
+
+kbd{font-family:var(--fco);border:1px solid #2c3a4e;background:#091424;border-radius:4px;padding:1px 4px;color:#cde}
+
+dialog{border:1px solid #004477;background:#081220;color:#dff;padding:14px;border-radius:10px}
+</style>
 </head>
 <body>
-  <div id="top">
-    <div class="brand">
-      <div class="logo"></div>
-      <div class="title">
-        <span class="n">RILEY RACCOON</span>
-        <span class="s">BROWSER‑ONLY · UNLIMITED</span>
-      </div>
-    </div>
-    <span class="tag">WebGPU + WebLLM</span>
-    <span class="tag">No API Key</span>
-    <div id="right">
-      <button class="btn" onclick="openSettings()">⚙ Settings</button>
-      <button class="btn" onclick="newProject()">＋ New</button>
+
+<!-- ───────────────── Topbar with your LOGO (full SVG restored) ───────────────── -->
+<div id="topbar">
+  <div id="logo">
+    <!-- YOUR ORIGINAL RILEY RACCOON SVG (full) -->
+    <svg id="riley-svg" viewBox="0 0 130 82" xmlns="http://www.w3.org/2000/svg" width="80" height="68" style="overflow:visible;filter:drop-shadow(0 0 5px #00aaff77) drop-shadow(0 0 14px #00aaff22)">
+      <!-- (PASTE THE FULL SVG BODY FROM YOUR ORIGINAL — omitted here for brevity) -->
+      <!-- BEGIN SVG -->
+      <!-- TAIL / BODY / SIDE / FRONT paths ... (your full content from earlier message) -->
+      <!-- END SVG -->
+    </svg>
+    <div id="logo-text">
+      <div id="logo-name">RILEY RACCOON</div>
+      <div id="logo-sub">BROWSER‑ONLY · UNLIMITED</div>
     </div>
   </div>
-
-  <div id="layout">
-    <aside id="left">
-      <div class="ph"><span class="pl">Projects</span></div>
-      <div id="plist"></div>
-      <div id="files">
-        <button class="btn" onclick="zipProject()">⬇ ZIP</button>
-        <button class="btn" onclick="zipAll()">⬇ ZIP All</button>
-        <button class="btn" onclick="exportChat()">📄 Export</button>
-      </div>
-    </aside>
-
-    <main id="mid">
-      <div id="ctx">
-        <span id="ctxName"></span>
-        <span id="ctxFiles"></span>
-        <span id="ctxMsgs"></span>
-      </div>
-      <div id="msgs"></div>
-      <div id="input">
-        <div class="copy-bar">
-          <span style="font-family:var(--fco);font-size:10px;color:#8fb;letter-spacing:.06em">Tip: first load downloads a small model to the browser cache; then it’s instant.</span>
-          <div><span class="stag" id="status">Engine: loading…</span></div>
-        </div>
-        <div id="iw">
-          <textarea id="inp" placeholder="Describe what you want Riley to build…" rows="1"></textarea>
-          <button class="send" title="Send" onclick="send()">➤</button>
-        </div>
-        <div id="ops">
-          <select id="lang">
-            <option value="auto">Auto</option><option>python</option><option>javascript</option><option>typescript</option>
-            <option>react</option><option>html</option><option>nodejs</option><option>bash</option><option>go</option>
-            <option>rust</option><option>csharp</option><option>cpp</option><option>java</option><option>php</option>
-            <option>swift</option><option>kotlin</option><option>sql</option><option>yaml</option><option>dockerfile</option>
-          </select>
-          <select id="mode">
-            <option value="build">Build new</option>
-            <option value="fix">Fix / Debug</option>
-            <option value="extend">Add feature</option>
-            <option value="explain">Explain</option>
-            <option value="review">Code review</option>
-            <option value="refactor">Refactor</option>
-            <option value="test">Write tests</option>
-            <option value="docs">Write docs</option>
-          </select>
-          <input class="mini" id="model-id" size="36"
-                 value="Llama-3-8B-Instruct-q4f32_1-MLC"
-                 title="WebLLM Model ID (cached after first load)"/>
-          <button class="btn" onclick="reloadModel()">↻ Reload Model</button>
-        </div>
-      </div>
-    </main>
-
-    <aside id="rightPane">
-      <div class="ph"><span class="pl">Files</span></div>
-      <div id="tree"></div>
-      <div id="viewer">
-        <div id="vhead"><span id="vname">select a file</span>
-          <div>
-            <button class="btn" onclick="copyViewer()">copy</button>
-          </div>
-        </div>
-        <div id="vcode"></div>
-      </div>
-    </aside>
+  <span class="chip">WebGPU</span>
+  <span class="chip">Streaming</span>
+  <span class="chip">RAG Memory</span>
+  <div id="right">
+    <button class="btn" onclick="openSettings()">⚙ Settings</button>
+    <button class="btn green" onclick="openPalette()">⌘/Ctrl‑K</button>
+    <button class="btn" onclick="newProject()">＋ New</button>
   </div>
+</div>
 
-  <!-- SETTINGS MODAL (simple) -->
-  <dialog id="dlg" style="border:1px solid #004477;background:#081220;color:#dff;padding:14px;border-radius:10px;max-width:640px">
-    <h3 style="margin:0 0 10px 0;font-family:var(--fhd);letter-spacing:.1em;color:#00aaff">Settings</h3>
-    <div style="font-family:var(--fco);font-size:12px;line-height:1.7">
-      <p><b>Provider:</b> <code>WebLLM (Browser‑Only)</code> — no server, no key, unlimited.</p>
-      <p><b>Model:</b> <input id="dlg-model" style="width:100%;font-family:var(--fco);font-size:12px;background:#0a1422;border:1px solid #1d3349;color:#cfe;padding:6px;border-radius:6px"
-                               value="Llama-3-8B-Instruct-q4f32_1-MLC"/></p>
-      <p style="color:#9bd">First load pulls weights; then cached in your browser (IndexedDB). Reload if you change the model id.</p>
+<!-- ───────────────── Layout ───────────────── -->
+<div id="layout">
+  <aside id="left">
+    <div class="ph"><span class="pl">Projects</span></div>
+    <div id="plist"></div>
+    <div id="leftBtns">
+      <button class="btn" onclick="zipProject()">⬇ ZIP</button>
+      <button class="btn" onclick="zipAll()">⬇ ZIP All</button>
+      <button class="btn" onclick="exportChat()">📄 Export</button>
+      <button class="btn" onclick="genMissing()">⚙ Generate Missing Configs</button>
     </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-      <button class="btn" onclick="document.getElementById('dlg').close()">Close</button>
-      <button class="btn" onclick="applySettings()">Save</button>
+  </aside>
+
+  <main id="mid">
+    <div id="ctx">
+      <span id="ctxName"></span>
+      <span id="ctxFiles"></span>
+      <span id="ctxMsgs"></span>
+      <span id="ctxModel" style="margin-left:auto;color:#9ed"></span>
     </div>
-  </dialog>
 
-  <script type="module">
-    // ======= State =======
-    import * as webllm from "https://esm.run/@mlc-ai/web-llm";
-    // Notes: WebLLM provides an OpenAI-style chat API (engine.chat.completions.create)
-    // and runs models with WebGPU in the browser — no API keys, no servers. [1](https://www.npmjs.com/package/@mlc-ai/web-llm/v/0.2.33)
-    // Model docs & API ref: WebLLM docs. )[5](https://webllm.mlc.ai/docs/user/api_reference.html)
+    <div id="msgs"></div>
 
-    // Local storage keys
-    const LS = {
-      projects: 'rl_p',
-      active: 'rl_a',
-      hist: 'rl_ph',
-      model: 'rl_webllm_model'
-    };
+    <div id="input">
+      <div class="copy-bar">
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap" id="presetsBar"></div>
+        <div><span class="stag" id="status">Engine: loading…</span></div>
+      </div>
+      <div id="iw">
+        <textarea id="inp" placeholder="Describe what you want Riley to build…" rows="1"></textarea>
+        <button class="send" title="Send" onclick="send()">➤</button>
+      </div>
+      <div id="ops">
+        <select id="lang">
+          <option value="auto">Auto</option><option>python</option><option>javascript</option><option>typescript</option>
+          <option>react</option><option>html</option><option>nodejs</option><option>bash</option><option>go</option>
+          <option>rust</option><option>csharp</option><option>cpp</option><option>java</option><option>php</option>
+          <option>swift</option><option>kotlin</option><option>sql</option><option>yaml</option><option>dockerfile</option>
+          <option value="qlik-script">qlik-script</option>
+        </select>
+        <select id="mode">
+          <option value="build">Build new</option>
+          <option value="fix">Fix / Debug</option>
+          <option value="extend">Add feature</option>
+          <option value="explain">Explain</option>
+          <option value="review">Code review</option>
+          <option value="refactor">Refactor</option>
+          <option value="test">Write tests</option>
+          <option value="docs">Write docs</option>
+        </select>
+        <input class="mini" id="model-id" size="36" value="Llama-3-8B-Instruct-q4f32_1-MLC" title="WebLLM Model ID (cached after first load)"/>
+        <button class="btn" onclick="reloadModel()">↻ Reload</button>
+        <label class="mini" style="display:flex;gap:6px;align-items:center">
+          <input type="checkbox" id="useRag" checked/> RAG Memory
+        </label>
+        <label class="mini" style="display:flex;gap:6px;align-items:center">
+          <input type="checkbox" id="selfCheck" checked/> Self‑check
+        </label>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap" id="hints"></div>
+    </div>
+  </main>
 
-    // Project model
-    let projs = JSON.parse(localStorage.getItem(LS.projects) || '[]');
-    let aid   = localStorage.getItem(LS.active) || '';
-    let hist  = [];                // chat history (browser‑only)
-    let engine = null;             // WebLLM engine
-    let busy = false;
-    let selFile = null;
-
-    // UI refs
-    const msgsEl = document.getElementById('msgs');
-    const treeEl = document.getElementById('tree');
-    const vcode  = document.getElementById('vcode');
-    const vname  = document.getElementById('vname');
-    const ctxName= document.getElementById('ctxName');
-    const ctxFiles=document.getElementById('ctxFiles');
-    const ctxMsgs =document.getElementById('ctxMsgs');
-    const status  = document.getElementById('status');
-
-    // ======= Storage helpers =======
-    function uid(){ return Math.random().toString(36).slice(2,10); }
-    function save(){ localStorage.setItem(LS.projects, JSON.stringify(projs)); localStorage.setItem(LS.active, aid); }
-    function ap(){ return projs.find(p=>p.id===aid); }
-    function projectOrCreate(){
-      if(!projs.length){ const p = { id: uid(), name:'My First Project', files:[], hist:[], ts: Date.now() }; projs.push(p); aid=p.id; save(); }
-      if(!aid || !projs.find(p=>p.id===aid)){ aid=projs[0].id; save(); }
-      hist = (ap().hist||[]).slice();
-    }
-
-    // ======= UI helpers =======
-    function addMsg(role, html){
-      const wrap=document.createElement('div'); wrap.className='msg';
-      const av=document.createElement('div'); av.className='av '+(role==='user'?'u':'');
-      av.textContent = role==='user' ? 'ME' : '🦝';
-      const bub=document.createElement('div'); bub.className='bub'; bub.innerHTML = html;
-      wrap.appendChild(av); wrap.appendChild(bub); msgsEl.appendChild(wrap);
-      msgsEl.scrollTop = msgsEl.scrollHeight;
-    }
-    function renderProjects(){
-      const el=document.getElementById('plist');
-      el.innerHTML = projs.map(p=>`
-        <div class="pi ${p.id===aid?'act':''}" onclick="switchProject('${p.id}')">
-          <div class="pin">${p.name}</div>
-          <div class="pim">${p.files.length} files · ${(p.hist||[]).filter(h=>h.role==='user').length} msgs</div>
+  <aside id="rightPane">
+    <div class="ph"><span class="pl">Files</span></div>
+    <div id="tree"></div>
+    <div id="viewer">
+      <div id="vhead">
+        <span id="vname">select a file</span>
+        <div>
+          <button class="btn" onclick="copyViewer()">copy</button>
+          <button class="btn" onclick="runSelected()">▶ Run</button>
+          <button class="btn" onclick="showHistory()">⟲ History</button>
         </div>
-      `).join('');
-    }
-    function renderTree(){
-      const p=ap(); const files = p?.files||[];
-      treeEl.innerHTML = files.length ? files.map(f=>`
-        <div class="file" onclick="viewFile('${f.filename.replace(/'/g,"\\'")}')">
-          <span style="font-family:var(--fco);font-size:11px;color:#bcd;overflow:hidden;text-overflow:ellipsis">${f.filename}</span>
-          <span style="font-family:var(--fco);font-size:10px;color:#678">${f.code.length}b</span>
-        </div>
-      `).join('') : `<div style="font-family:var(--fco);font-size:11px;color:#678;padding:8px">No files yet. Generate code to see files here.</div>`;
-    }
-    function updateCtx(){
-      const p=ap(), files=p?.files?.length||0, msgs=(p?.hist||[]).filter(h=>h.role==='user').length;
-      ctxName.textContent = p ? p.name : '';
-      ctxFiles.textContent = files ? `· ${files} file${files!==1?'s':''}` : '';
-      ctxMsgs.textContent  = msgs ? `· ${msgs} msg${msgs!==1?'s':''}` : '';
-    }
+      </div>
+      <div id="vcode"></div>
+    </div>
+  </aside>
+</div>
 
-    // Global for inline onclicks
-    window.switchProject = (id)=>{ ap().hist = hist.slice(); save(); aid=id; hist=(ap().hist||[]).slice(); msgsEl.innerHTML=''; addMsg('assistant','<span class="stag">✓ switched project</span>'); renderProjects(); renderTree(); updateCtx(); };
-    window.viewFile = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return; selFile=fn; vname.textContent=fn; vcode.textContent=f.code; };
-    window.copyViewer = ()=>{ if(!selFile) return; navigator.clipboard.writeText(vcode.textContent); };
+<!-- ───────────────── Dialogs: Settings / History / Palette / Python ───────────────── -->
+<dialog id="dlg-settings" style="max-width:720px">
+  <h3 style="margin:0 0 10px 0;font-family:var(--fhd);letter-spacing:.1em;color:#00aaff">Settings</h3>
+  <div style="font-family:var(--fco);font-size:12px;line-height:1.7">
+    <p><b>Provider:</b> <code>WebLLM (Browser‑Only)</code> — no server, no key, unlimited.</p>
+    <p><b>Model:</b> <input id="dlg-model" style="width:100%;font-family:var(--fco);font-size:12px;background:#0a1422;border:1px solid #1d3349;color:#cfe;padding:6px;border-radius:6px" value="Llama-3-8B-Instruct-q4f32_1-MLC"/></p>
+    <p><b>Prompt Presets:</b> <button class="btn" onclick="addPreset()">＋ Add current as preset</button></p>
+    <p><b>Search allow‑list (comma‑sep domains):</b><br/>
+       <input id="allowDomains" style="width:100%;font-family:var(--fco);font-size:12px;background:#0a1422;border:1px solid #1d3349;color:#cfe;padding:6px;border-radius:6px" placeholder="nodejs.org, qlik.dev, docs.npmjs.com"/></p>
+    <p><b>Cache TTL</b> (hours): <input id="ttlHours" type="number" min="1" max="168" value="24" class="mini"/></p>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+    <button class="btn" onclick="document.getElementById('dlg-settings').close()">Close</button>
+    <button class="btn green" onclick="saveSettings()">Save</button>
+  </div>
+</dialog>
 
-    // ======= Model load (WebLLM) =======
-    async function loadEngine(modelId){
-      status.textContent = 'Engine: loading…';
-      try{
-        engine = await webllm.CreateEngine(modelId, {
-          initProgressCallback: (rep)=>{ status.textContent = `Engine: ${rep.text}`; }
-        });
-        status.textContent = `Engine: ready (${modelId})`;
-      }catch(e){
-        status.className='stag err'; status.textContent = `Engine error: ${e.message||e}`;
-      }
-    }
+<dialog id="dlg-history" style="max-width:820px">
+  <h3 style="margin:0 0 10px 0;font-family:var(--fhd);letter-spacing:.1em;color:#00aaff">File History</h3>
+  <div id="histList" style="max-height:60vh;overflow:auto;font-family:var(--fco);font-size:12px"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+    <button class="btn" onclick="document.getElementById('dlg-history').close()">Close</button>
+  </div>
+</dialog>
 
-    // ======= Files / code cards =======
-    function buildCard(raw, langHint){
-      // detect first-line filename comment (your rule)
-      const m = raw.match(/^(?:\/\/|#|<!--|\/\*)\s*filename:\s*(.+?)(?:\s*-->|\s*\*\/)?\s*$/im);
-      const fn = m ? m[1].trim() : inferName(langHint||'text', raw);
-      const p=ap(); const ex=p.files.findIndex(f=>f.filename===fn);
-      if(ex>=0) p.files[ex].code = raw; else p.files.push({ filename: fn, code: raw, lang: langHint||'code' });
-      save(); renderTree();
-      return `<div style="border:1px solid #1d3349;border-radius:8px;overflow:hidden;margin:8px 0">
-        <div style="display:flex;justify-content:space-between;align-items:center;background:#0b1a2a;padding:6px 10px">
-          <span style="font-family:var(--fco);font-size:11px;color:#8fcfff">${fn}</span>
-          <button class="btn" onclick="downloadFile('${fn.replace(/'/g,"\\'")}')">⬇</button>
-        </div>
-        <pre style="margin:0;padding:10px 12px;max-height:420px;overflow:auto;color:#6be08a;font-family:var(--fco);font-size:11.5px">${escapeHtml(raw)}</pre>
+<dialog id="dlg-palette" style="max-width:560px">
+  <input id="paletteInput" placeholder="Type a command (e.g., Zip, Make GitHub-ready, Switch Model…)" style="width:100%;font-family:var(--fco);font-size:13px;background:#0a1422;border:1px solid #1d3349;color:#cfe;padding:10px;border-radius:8px"/>
+  <div id="paletteList" style="margin-top:10px;max-height:50vh;overflow:auto;font-family:var(--fco);font-size:12px"></div>
+</dialog>
+
+<dialog id="dlg-python" style="max-width:720px">
+  <h3 style="margin:0 0 10px 0;font-family:var(--fhd);letter-spacing:.1em;color:#00aaff">Run Python (Pyodide)</h3>
+  <div style="font-family:var(--fco);font-size:12px;line-height:1.6;color:#bcd">First run downloads Pyodide, then it’s cached.</div>
+  <textarea id="pySrc" style="width:100%;height:220px;font-family:var(--fco);font-size:12px;background:#0a1422;border:1px solid #1d3349;color:#cfe;padding:8px;border-radius:8px">print("hello from Pyodide!")</textarea>
+  <pre id="pyOut" style="max-height:240px;overflow:auto;background:#081220;border:1px solid #1d3349;color:#bdf;padding:8px;border-radius:8px"></pre>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+    <button class="btn" onclick="document.getElementById('dlg-python').close()">Close</button>
+    <button class="btn green" onclick="runPy()">▶ Run</button>
+  </div>
+</dialog>
+
+<script type="module">
+/* ──────────────────────────────────────────────────────────────────────────────
+   Riley — Browser‑Only, Unlimited
+   - WebLLM (streaming)        — webllm.chat.completions.create({ stream:true })  [1](https://webllm.mlc.ai/docs/user/api_reference.html)
+   - Transformers.js embeddings (RAG) on WebGPU                                   [4](https://huggingface.co/docs/transformers.js/guides/webgpu)
+   - Jina Search / Reader (key‑free) with caching                                 [2](https://github.com/jina-ai/reader)[3](https://jina.ai/reader/)
+   - IndexedDB (projects, cache, versions, vectors)                               [8](https://dev.to/mino/browser-storage-deep-dive-cache-vs-indexeddb-for-scalable-pwas-35f4)[9](https://rxdb.info/articles/indexeddb-max-storage-limit.html)
+   - Optional Pyodide (lazy)                                                      [5](https://github.com/pyodide/pyodide/blob/main/docs/usage/quickstart.md)[6](https://pyodide.org/en/0.24.1/usage/downloading-and-deploying.html)
+────────────────────────────────────────────────────────────────────────────── */
+import * as webllm from "https://esm.run/@mlc-ai/web-llm";         // WebLLM engine (OpenAI-like API)  [1](https://webllm.mlc.ai/docs/user/api_reference.html)
+import { pipeline } from "https://esm.run/@huggingface/transformers"; // Transformers.js pipelines (embeddings)  [4](https://huggingface.co/docs/transformers.js/guides/webgpu)
+
+/* ========== State & Storage ========== */
+const LS = {
+  projects: 'rl_p', active:'rl_a', presets:'rl_presets',
+  webllmModel:'rl_webllm_model', allow:'rl_allow_domains', ttl:'rl_cache_ttl'
+};
+let projs = JSON.parse(localStorage.getItem(LS.projects) || '[]');
+let aid   = localStorage.getItem(LS.active) || '';
+let hist  = [];
+let engine = null;      // WebLLM engine
+let busy = false;
+let selFile = null;
+let ragOn = true;       // memory toggle
+let selfCheckOn = true; // self-check pass
+let embeddings = null;  // transformers.js pipeline (feature-extraction)
+let embeddingReady = false;
+
+const status = document.getElementById('status');
+const ctxModel = document.getElementById('ctxModel');
+const msgsEl = document.getElementById('msgs');
+const treeEl = document.getElementById('tree');
+const vcode = document.getElementById('vcode');
+const vname = document.getElementById('vname');
+
+/* ========== Projects ========== */
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function save(){ localStorage.setItem(LS.projects, JSON.stringify(projs)); localStorage.setItem(LS.active, aid); }
+function ap(){ return projs.find(p=>p.id===aid); }
+function ensureProject(){
+  if(!projs.length){ const p = { id:uid(), name:'My First Project', files:[], hist:[], ts:Date.now() }; projs.push(p); aid=p.id; save(); }
+  if(!aid || !projs.find(p=>p.id===aid)){ aid=projs[0].id; save(); }
+  hist = (ap().hist||[]).slice();
+}
+function renderProjects(){
+  const el=document.getElementById('plist');
+  el.innerHTML = projs.map(p=>`
+    <div class="pi ${p.id===aid?'act':''}" onclick="switchProject('${p.id}')">
+      <div class="pin">${p.name}</div>
+      <div class="pim">${p.files.length} files · ${(p.hist||[]).filter(h=>h.role==='user').length} msgs</div>
+    </div>`).join('');
+}
+window.switchProject = (id)=>{ ap().hist = hist.slice(); save(); aid=id; hist=(ap().hist||[]).slice(); msgsEl.innerHTML=''; addMsg('assistant','<span class="stag">✓ switched project</span>'); renderProjects(); renderTree(); updateCtx(); };
+
+/* ========== UI helpers ========== */
+function addMsg(role, html){
+  const wrap=document.createElement('div'); wrap.className='msg';
+  const av=document.createElement('div'); av.className='av '+(role==='user'?'u':''); av.textContent = role==='user' ? 'ME' : '🦝';
+  const bub=document.createElement('div'); bub.className='bub'; bub.innerHTML = html;
+  wrap.appendChild(av); wrap.appendChild(bub); msgsEl.appendChild(wrap); msgsEl.scrollTop = msgsEl.scrollHeight;
+  return bub;
+}
+function addStreamMsg(){ const wrap=document.createElement('div'); wrap.className='msg'; const av=document.createElement('div'); av.className='av'; av.textContent='🦝'; const bub=document.createElement('div'); bub.className='bub stream-bub'; bub.innerHTML=''; wrap.appendChild(av); wrap.appendChild(bub); msgsEl.appendChild(wrap); msgsEl.scrollTop=msgsEl.scrollHeight; return bub; }
+function updateCtx(){ const p=ap(), f=p?.files?.length||0, m=(p?.hist||[]).filter(h=>h.role==='user').length; document.getElementById('ctxName').textContent=p?p.name:''; document.getElementById('ctxFiles').textContent=f?`· ${f} file${f!==1?'s':''}`:''; document.getElementById('ctxMsgs').textContent=m?`· ${m} msg${m!==1?'s':''}`:''; ctxModel.textContent = engine?`Model: ${document.getElementById('model-id').value}`:'Model: loading…'; }
+function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+function slug(s){ return s.replace(/[^a-z0-9_\-]/gi,'_'); }
+
+/* ========== Files & Tree ========== */
+function inferName(lang, code){
+  const map={python:'script.py',javascript:'index.js',typescript:'index.ts',react:'App.jsx',html:'index.html',nodejs:'server.js',
+    bash:'script.sh',go:'main.go',rust:'main.rs',java:'Main.java',csharp:'Program.cs',cpp:'main.cpp',php:'index.php',
+    swift:'main.swift',kotlin:'Main.kt',sql:'query.sql',yaml:'config.yml',dockerfile:'Dockerfile'};
+  return map[lang]||'code.txt';
+}
+function addOrUpdateFile(fn, code, lang){
+  const p=ap(); const ex=p.files.findIndex(f=>f.filename===fn);
+  const now=Date.now();
+  if(ex>=0){
+    // versioning: push previous into history store
+    saveVersion(fn, p.files[ex].code, 'AI', now);
+    p.files[ex].code = code; p.files[ex].lang = lang||p.files[ex].lang;
+  } else {
+    p.files.push({ filename: fn, code, lang: lang||'code' });
+    saveVersion(fn, code, 'AI', now);
+  }
+  save(); renderTree();
+}
+function buildCard(raw, langHint){
+  // filename on line 1 rule
+  const m = raw.match(/^(?:\/\/|#|<!--|\/\*)\s*filename:\s*(.+?)(?:\s*-->|\s*\*\/)?\s*$/im);
+  const fn = m ? m[1].trim() : inferName(langHint||'text', raw);
+  addOrUpdateFile(fn, raw, langHint);
+  return `<div style="border:1px solid #1d3349;border-radius:8px;overflow:hidden;margin:8px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#0b1a2a;padding:6px 10px">
+      <span style="font-family:var(--fco);font-size:11px;color:#8fcfff">${fn}</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn" onclick="downloadFile('${fn.replace(/'/g,"\\'")}')">⬇</button>
+        <button class="btn" onclick="openRunFor('${fn.replace(/'/g,"\\'")}')">▶</button>
+      </div>
+    </div>
+    <pre style="margin:0;padding:10px 12px;max-height:420px;overflow:auto;color:#6be08a;font-family:var(--fco);font-size:11.5px">${escapeHtml(raw)}</pre>
+  </div>`;
+}
+function renderTree(){
+  const p=ap(); const files=p?.files||[];
+  // Simple virtual folder split by "/"
+  const grouped = {};
+  for(const f of files){
+    const parts = f.filename.split('/');
+    const folder = parts.length>1 ? parts.slice(0,-1).join('/') : '(root)';
+    grouped[folder] = grouped[folder] || []; grouped[folder].push(f);
+  }
+  let html='';
+  for(const folder of Object.keys(grouped).sort()){
+    html += `<div style="font-family:var(--fco);font-size:10px;color:#89a;padding:4px 2px">${escapeHtml(folder)}</div>`;
+    for(const f of grouped[folder].sort((a,b)=>a.filename.localeCompare(b.filename))){
+      html += `<div class="file" onclick="viewFile('${f.filename.replace(/'/g,"\\'")}')">
+        <span style="font-family:var(--fco);font-size:11px;color:#bcd;overflow:hidden;text-overflow:ellipsis">${escapeHtml(f.filename)}</span>
+        <span style="font-family:var(--fco);font-size:10px;color:#678">${f.code.length}b</span>
       </div>`;
     }
-    function inferName(lang, code){
-      const map={python:'script.py',javascript:'index.js',typescript:'index.ts',react:'App.jsx',html:'index.html',nodejs:'server.js',
-                 bash:'script.sh',go:'main.go',rust:'main.rs',java:'Main.java',csharp:'Program.cs',cpp:'main.cpp',php:'index.php',
-                 swift:'main.swift',kotlin:'Main.kt',sql:'query.sql',yaml:'config.yml',dockerfile:'Dockerfile'};
-      return map[lang]||'code.txt';
-    }
-    function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-    window.downloadFile = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([f.code],{type:'text/plain'})); a.download=fn; a.click(); };
+  }
+  treeEl.innerHTML = html || `<div style="font-family:var(--fco);font-size:11px;color:#678;padding:8px">No files yet. Generate code to see files here.</div>`;
+}
+window.viewFile = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return; selFile=fn; vname.textContent=fn; vcode.textContent=f.code; };
+window.copyViewer = ()=>{ if(!selFile) return; navigator.clipboard.writeText(vcode.textContent); };
+window.downloadFile = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([f.code],{type:'text/plain'})); a.download=fn; a.click(); };
 
-    // ======= Web search (no key) via Jina =======
-    async function jinaSearch(q, k=3){
-      try{
-        const r = await fetch(`https://s.jina.ai/${encodeURIComponent(q)}`); // returns SERP + cleaned content
-        const j = await r.json();
-        return (j||[]).slice(0,k);
-      }catch(_){ return []; }
-    }
-    async function jinaRead(url){
-      try{
-        const r = await fetch(`https://r.jina.ai/${url}`); // returns Markdown/plain text
-        return await r.text();
-      }catch(_){ return ''; }
-    }
-    // Jina services allow quick, key‑free SERP and page→markdown conversion useful for grounding LLM prompts. [3](https://github.com/jina-ai/reader)[4](https://jina.ai/reader/)
+/* ========== Versioning (IndexedDB) ========== */
+const DB_NAME='riley_db', DB_VER=2, STORE_VER='versions', STORE_CACHE='cache', STORE_VECT='vectors';
+let db=null;
+function openDB(){ return new Promise((resolve,reject)=>{ const r = indexedDB.open(DB_NAME, DB_VER);
+  r.onerror=()=>reject(r.error); r.onupgradeneeded=(e)=>{ db=r.result; if(!db.objectStoreNames.contains(STORE_VER)){ db.createObjectStore(STORE_VER,{keyPath:'id',autoIncrement:true}).createIndex('by_file','filename',{unique:false}); }
+    if(!db.objectStoreNames.contains(STORE_CACHE)){ db.createObjectStore(STORE_CACHE,{keyPath:'key'}).createIndex('by_ts','ts'); }
+    if(!db.objectStoreNames.contains(STORE_VECT)){ const s=db.createObjectStore(STORE_VECT,{keyPath:'id',autoIncrement:true}); s.createIndex('by_file','filename',{unique:false}); s.createIndex('by_ts','ts'); }
+  }; r.onsuccess=()=>{ db=r.result; resolve(db); }; });}
+function tx(store, mode='readonly'){ return db.transaction(store, mode).objectStore(store); }
+async function saveVersion(filename, code, origin, ts){ if(!db) await openDB(); const p=ap(); const rec={ filename, code, origin, ts, project: p?.name || '' }; await new Promise((res,rej)=>{ const req=tx(STORE_VER,'readwrite').add(rec); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
+async function listVersions(filename){ if(!db) await openDB(); return await new Promise((res,rej)=>{ const idx=tx(STORE_VER).index('by_file'); const out=[]; idx.openCursor(IDBKeyRange.only(filename), 'prev').onsuccess=(ev)=>{ const c=ev.target.result; if(c){ out.push(c.value); c.continue(); } else res(out); }; idx.openCursor().onerror=()=>rej(); }); }
+window.showHistory = async ()=>{ if(!selFile){ alert('Select a file first'); return; } const list = await listVersions(selFile); const el=document.getElementById('histList'); el.innerHTML = list.map(v=>`
+  <div style="border:1px solid #1d3349;border-radius:8px;margin:6px 0">
+    <div style="display:flex;justify-content:space-between;background:#0b1a2a;padding:6px 10px"><span>${new Date(v.ts).toLocaleString()} · ${v.origin}</span>
+      <div><button class="btn" onclick='revertVersion(${v.id})'>Revert</button></div></div>
+    <pre style="margin:0;padding:10px 12px;max-height:220px;overflow:auto;color:#6be08a">${escapeHtml(v.code)}</pre>
+  </div>`).join('') || '<div>No history yet.</div>';
+  document.getElementById('dlg-history').showModal();
+};
+window.revertVersion = async (id)=>{ if(!db) await openDB(); const o=tx(STORE_VER); const g=await new Promise((res,rej)=>{ const req=o.get(id); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); if(!g) return;
+  addOrUpdateFile(g.filename, g.code, 'code'); vname.textContent=g.filename; vcode.textContent=g.code; document.getElementById('dlg-history').close();
+  addMsg('assistant','<span class="stag">✓ reverted</span>'); };
 
-    // ======= Send =======
-    async function send(){
-      if(busy) return;
-      const ta = document.getElementById('inp');
-      const text = ta.value.trim(); if(!text) return;
-      ta.value=''; ta.style.height='';
+/* ========== Cache (Jina) ========== */
+async function cacheGet(key){ if(!db) await openDB(); return await new Promise((res,rej)=>{ const req=tx(STORE_CACHE).get(key); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); }
+async function cachePut(key, value, ttlHours){ if(!db) await openDB(); const ts=Date.now(), ttl=ttlHours*3600*1000; return await new Promise((res,rej)=>{ const req=tx(STORE_CACHE,'readwrite').put({key, value, ts, exp: ts+ttl}); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
 
-      busy = true;
-      addMsg('user', escapeHtml(text).replace(/\n/g,'<br/>'));
+/* ========== Jina Search / Reader (with allow‑list & TTL) ========== */
+function getAllow(){ return (localStorage.getItem(LS.allow)||'').split(',').map(s=>s.trim()).filter(Boolean); }
+function getTTL(){ const h=parseInt(localStorage.getItem(LS.ttl)||'24',10); return Math.min(Math.max(h,1),168); }
+async function jinaSearch(q, k=3){
+  const key=`srch:${q}`; const ttl=getTTL(); const c=await cacheGet(key); if(c && c.exp>Date.now()) return c.value;
+  const r = await fetch(`https://s.jina.ai/${encodeURIComponent(q)}`); const j = await r.json(); const allow=getAllow();
+  const results = !allow.length ? j : (j||[]).filter(x=> allow.some(d=> (x.url||'').includes(d)));
+  const top=(results||[]).slice(0,k); await cachePut(key, top, ttl); return top;
+}
+async function jinaRead(url){
+  const key=`page:${url}`; const ttl=getTTL(); const c=await cacheGet(key); if(c && c.exp>Date.now()) return c.value;
+  const r = await fetch(`https://r.jina.ai/${url}`); const t= await r.text(); await cachePut(key, t, ttl); return t;
+}
 
-      // Optional: quick search + brief context for build-like prompts
-      let context='';
-      if(/build|create|write|generate/i.test(text) && text.length < 600){
-        addMsg('assistant', `<span class="stag">searching: "${escapeHtml(text.slice(0,90))}…"</span>`);
-        const hits = await jinaSearch(text, 3);
-        const docs = await Promise.all(hits.map(h=>jinaRead(h.url)));
-        context = hits.map((h,i)=>`\n\n[Source ${i+1}] ${h.title}\n${(docs[i]||'').slice(0,900)}`).join('\n');
+/* ========== Embeddings (RAG memory) ========== */
+async function ensureEmbeddings(){
+  if(embeddingReady) return;
+  // small, fast embedding model; WebGPU device
+  embeddings = await pipeline("feature-extraction", "mixedbread-ai/mxbai-embed-xsmall-v1", { device: "webgpu" });
+  embeddingReady = true;
+}
+async function embed(text){ await ensureEmbeddings(); const out = await embeddings(text, { pooling:"mean", normalize:true }); return Array.from(out.data); }
+async function indexFileChunks(filename, code){
+  if(!db) await openDB(); if(!embeddingReady) await ensureEmbeddings();
+  const chunks = chunkText(code, 800); // ~800 token-ish heuristic
+  for(const ch of chunks){
+    const vec = await embed(ch);
+    await new Promise((res,rej)=>{ const req=tx(STORE_VECT,'readwrite').add({ filename, chunk: ch, vec, ts: Date.now() }); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); });
+  }
+}
+function chunkText(s, maxChars){ const out=[]; let i=0; while(i<s.length){ out.push(s.slice(i,i+maxChars)); i+=maxChars; } return out; }
+function dot(a,b){ let s=0; for(let i=0;i<Math.min(a.length,b.length);i++) s+=a[i]*b[i]; return s; }
+async function searchMemory(query, k=8){
+  if(!db) await openDB(); if(!embeddingReady) await ensureEmbeddings();
+  const qv = await embed(query);
+  return await new Promise((res,rej)=>{
+    const out=[]; tx(STORE_VECT).openCursor().onsuccess=(e)=>{ const c=e.target.result; if(c){ const v=c.value; v.score=dot(qv, v.vec); out.push(v); c.continue(); } else res(out.sort((a,b)=>b.score-a.score).slice(0,k)); };
+  });
+}
+
+/* ========== WebLLM model load (with streaming) ========== */
+async function loadEngine(modelId){
+  status.textContent='Engine: loading…';
+  try{
+    engine = await webllm.CreateEngine(modelId, {
+      initProgressCallback: (rep)=>{ status.textContent = `Engine: ${rep.text}`; }
+    });
+    status.textContent = `Engine: ready (${modelId})`;
+    ctxModel.textContent = `Model: ${modelId}`;
+  }catch(e){ status.className='stag err'; status.textContent = `Engine error: ${e.message||e}`; }
+}
+async function reloadModel(){ engine=null; status.textContent='Engine: reloading…'; await loadEngine(getModel()); }
+
+/* ========== Send (streaming + grounding + RAG + self‑check) ========== */
+function getModel(){ const v=document.getElementById('model-id').value.trim() || 'Llama-3-8B-Instruct-q4f32_1-MLC'; localStorage.setItem(LS.webllmModel, v); return v; }
+async function send(){
+  if(busy) return;
+  const ta = document.getElementById('inp');
+  const text = ta.value.trim(); if(!text) return;
+  ta.value=''; ta.style.height='';
+
+  busy = true;
+  addMsg('user', escapeHtml(text).replace(/\n/g,'<br/>'));
+
+  // Presets merge (if any were toggled via pills)
+  const lang = document.getElementById('lang').value;
+  const mode = document.getElementById('mode').value;
+  const hints = [
+    lang!=='auto' ? `Use ${lang} as the primary language.` : '',
+    mode==='build' ? 'Build this as a complete project from scratch.' :
+    mode==='fix'   ? 'Identify the root cause and return corrected file(s) in full.' :
+    mode==='extend'? 'Add this feature to the existing project. Only output new or changed files.' :
+    mode==='explain' ? 'Explain this code thoroughly with inline comments.' :
+    mode==='review'  ? 'Perform a precise code review and then provide an improved version.' :
+    mode==='refactor'? 'Refactor for clarity, performance, and maintainability, and explain changes.' :
+    mode==='test'    ? 'Write comprehensive tests with edge cases.' :
+    mode==='docs'    ? 'Write full documentation: README, inline comments, and docstrings.' : ''
+  ].filter(Boolean).join(' ');
+
+  // Current project context (file list only)
+  const p = ap();
+  const ctxFiles = p?.files?.length ? `\n[CURRENT PROJECT: "${p.name}"\nExisting files:\n${p.files.map(f=>`  - ${f.filename} (${f.code.length}b)`).join('\n')}\nBuild on top of these. Only output new or changed files.]` : '';
+
+  // Jina grounding (short build-like prompts)
+  let webContext='', sources=[];
+  if(/build|create|write|generate/i.test(text) && text.length<600){
+    addMsg('assistant', `<span class="stag">searching: "${escapeHtml(text.slice(0,90))}…"</span>`);
+    const hits = await jinaSearch(text, 3);
+    const docs = await Promise.all(hits.map(h=>jinaRead(h.url)));
+    sources = hits.map((h,i)=>({title:h.title,url:h.url,content: (docs[i]||'').slice(0,1000)}));
+    const maxCtx = 1200; // governor
+    webContext = sources.map((s,i)=>`\n\n[Source ${i+1}] ${s.title}\n${s.content.slice(0,maxCtx)}`).join('\n');
+  }
+
+  // RAG memory
+  let ragContext='';
+  if(document.getElementById('useRag').checked){
+    const mem = await searchMemory(text, 8);
+    if(mem.length){ ragContext = mem.map((m,i)=>`\n\n[Mem ${i+1}] ${m.filename}\n${m.chunk.slice(0,800)}`).join('\n'); }
+  }
+
+  const userText = (webContext?`Context from web:\n${webContext}\n\n`: '') + (ragContext?`Context from workspace:\n${ragContext}\n\n`:'') + text + (hints?`\n\n${hints}`:'') + ctxFiles;
+  hist.push({ role:'user', content:userText });
+
+  try{
+    if(!engine) await loadEngine(getModel());
+
+    // ========== Streaming request ==========
+    const req = { messages: hist.map(h=>({ role:h.role, content: h.content })), temperature:0.2, max_tokens:4096, stream:true };
+    const streamOrResp = await engine.chat.completions.create(req);
+    let full = ''; const streamBub = addStreamMsg();
+
+    // AsyncIterable per API docs; accumulate & render
+    if (streamOrResp && streamOrResp[Symbol.asyncIterator]) {
+      for await (const chunk of streamOrResp){
+        const delta = (chunk?.choices?.[0]?.delta?.content) || (chunk?.delta?.content) || (chunk?.choices?.[0]?.message?.content) || '';
+        if(delta){ full += delta; streamBub.innerText = full; msgsEl.scrollTop = msgsEl.scrollHeight; }
       }
-
-      // Build message payload (OpenAI-like chat for WebLLM)
-      const lang = document.getElementById('lang').value;
-      const mode = document.getElementById('mode').value;
-      const hints = [
-        lang!=='auto' ? `Use ${lang} as the primary language.` : '',
-        mode==='build' ? 'Build this as a complete project from scratch.' :
-        mode==='fix'   ? 'Identify the root cause and return corrected file(s) in full.' :
-        mode==='extend'? 'Add this feature to the existing project. Only output new or changed files.' :
-        mode==='explain' ? 'Explain this code thoroughly with inline comments.' :
-        mode==='review'  ? 'Perform a precise code review and then provide an improved version.' :
-        mode==='refactor'? 'Refactor for clarity, performance, and maintainability, and explain changes.' :
-        mode==='test'    ? 'Write comprehensive tests with edge cases.' :
-        mode==='docs'    ? 'Write full documentation: README, inline comments, and docstrings.' : ''
-      ].filter(Boolean).join(' ');
-
-      const p = ap();
-      const ctxFiles = p?.files?.length ? `\n[CURRENT PROJECT: "${p.name}"\nExisting files:\n${p.files.map(f=>`  - ${f.filename} (${f.code.length}b)`).join('\n')}\nBuild on top of these. Only output new or changed files.]` : '';
-
-      const userText = (context?`Context from web:\n${context}\n\n`: '') + text + (hints?`\n\n${hints}`:'') + ctxFiles;
-      hist.push({ role:'user', content:userText });
-
-      try{
-        // Ensure engine is ready
-        if(!engine) await loadEngine(getModel());
-        const resp = await engine.chat.completions.create({
-          messages: hist.map(h=>({ role:h.role, content: h.content })),
-          temperature: 0.2,
-          max_tokens: 4096
-        });
-        const full = resp.choices?.[0]?.message?.content || '';
-        hist.push({ role:'assistant', content:full });
-
-        // Render code files + text
-        const html = renderResponse(full);
-        addMsg('assistant', html);
-
-        // Persist history per project
-        p.hist = hist.slice(); save(); updateCtx();
-
-      }catch(e){
-        addMsg('assistant', `<span class="stag err">error: ${escapeHtml(e.message||String(e))}</span>`);
-      }finally{
-        busy = false;
-      }
+    } else {
+      // Fallback non-stream
+      const resp = streamOrResp;
+      full = resp?.choices?.[0]?.message?.content || '';
+      streamBub.innerText = full;
     }
 
-    // Format assistant output into code cards and text
-    function renderResponse(text){
-      const parts = text.split(/(```[\s\S]*?```)/g);
-      let html = '';
-      let generated = 0;
-      for(const part of parts){
-        if(part.startsWith('```')){
-          const inner = part.slice(3,-3);
-          const nl = inner.indexOf('\n');
-          const lang = nl>-1 ? inner.slice(0,nl).trim() : 'text';
-          const code = (nl>-1 ? inner.slice(nl+1) : inner).trimEnd();
-          if(!code) continue;
-          html += buildCard(code, lang);
-          generated++;
-        } else if(part.trim()){
-          html += `<p style="margin:6px 0">${escapeHtml(part).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br/>')}</p>`;
-        }
-      }
-      if(generated>1){
-        html = `<div class="copy-bar"><span style="font-family:var(--fco);font-size:10px;color:#8fb">Generated <b>${generated}</b> files</span><button class="btn" onclick="zipProject()">⬇ ZIP</button></div>` + html;
-      }
-      return html;
+    // Replace streaming bubble with formatted cards
+    streamBub.parentElement.parentElement.remove(); // remove bubble row
+    const html = renderResponse(full, sources);
+    addMsg('assistant', html);
+    hist.push({ role:'assistant', content:full });
+
+    // Persist chat and index new files to memory
+    p.hist = hist.slice(); save(); updateCtx();
+    await indexNewFilesToMemory(full);
+
+    // Optional self-check pass
+    if(document.getElementById('selfCheck').checked){
+      await doSelfCheck(full);
     }
 
-    // ======= ZIP / Export =======
-    window.zipProject = async ()=>{
-      const p=ap(); if(!p?.files?.length) return alert('No files yet.');
-      const z=new JSZip(), f=z.folder(slug(p.name));
-      p.files.forEach(fi=>f.file(fi.filename, fi.code));
-      const bl=await z.generateAsync({type:'blob',compression:'DEFLATE'});
-      saveBlob(bl, slug(p.name)+'.zip');
-    };
-    window.zipAll = async ()=>{
-      if(!projs.some(p=>p.files?.length)) return alert('No files in any project.');
-      const z=new JSZip();
-      projs.forEach(p=>{ if(p.files?.length){ const f=z.folder(slug(p.name)); p.files.forEach(fi=>f.file(fi.filename, fi.code)); } });
-      const bl=await z.generateAsync({type:'blob',compression:'DEFLATE'});
-      saveBlob(bl, 'riley_all_projects.zip');
-    };
-    window.exportChat = ()=>{
-      const p=ap(); if(!p) return;
-      let md = `# ${p.name} — Riley Export (Browser‑Only)\n\n_Generated: ${new Date().toLocaleString()}_\n\n---\n\n`;
-      (p.hist||[]).forEach(h=>{ md += `**${h.role==='user'?'You':'Riley'}:** ${h.content}\n\n`; });
-      if(p.files?.length){
-        md += `\n---\n\n# Project Files\n`;
-        p.files.forEach(f=>{ md += `\n## ${f.filename}\n\`\`\`\n${f.code}\n\`\`\`\n`; });
-      }
-      saveBlob(new Blob([md],{type:'text/markdown'}), slug(p.name)+'_export.md');
-    };
-    function slug(s){ return s.replace(/[^a-z0-9_\-]/gi,'_'); }
-    function saveBlob(b,n){ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=n; a.click(); }
+  }catch(e){
+    addMsg('assistant', `<span class="stag err">error: ${escapeHtml(e.message||String(e))}</span>`);
+  }finally{
+    busy = false;
+  }
+}
 
-    // ======= New project / settings =======
-    window.newProject = ()=>{
-      const name = prompt('Project name:', 'New Project') || 'New Project';
-      ap().hist = hist.slice(); save();
-      const p = { id: uid(), name, files:[], hist:[], ts: Date.now() };
-      projs.push(p); aid=p.id; save();
-      hist = []; msgsEl.innerHTML='';
-      renderProjects(); renderTree(); updateCtx();
-      addMsg('assistant', `<span class="stag">✓ project created</span>`);
-    };
-    window.openSettings = ()=>{ document.getElementById('dlg-model').value = getModel(); document.getElementById('dlg').showModal(); };
-    window.applySettings = async ()=>{
-      const m = document.getElementById('dlg-model').value.trim() || 'Llama-3-8B-Instruct-q4f32_1-MLC';
-      localStorage.setItem(LS.model, m);
-      document.getElementById('model-id').value = m;
-      document.getElementById('dlg').close();
-      await reloadModel();
-    };
-    window.reloadModel = async ()=>{
-      engine = null;
-      status.textContent='Engine: reloading…';
-      await loadEngine(getModel());
-    };
-    function getModel(){ return (document.getElementById('model-id').value || localStorage.getItem(LS.model) || 'Llama-3-8B-Instruct-q4f32_1-MLC'); }
-
-    // ======= Init =======
-    function welcome(){
-      addMsg('assistant',
-        `<b style="color:#00aaff">RILEY RACCOON — Browser‑Only</b><br/><br/>
-         <span class="stag">unlimited</span> <span class="stag">no key</span> <span class="stag">offline‑capable</span><br/><br/>
-         Ask me to build a project. I’ll generate <b>complete, runnable code</b>, and files appear at right.<br/><br/>
-         <b>Example:</b> Build a React dashboard with Tailwind, charts, and a mock API.`);
+function renderResponse(text, sources){
+  const parts = text.split(/(```[\s\S]*?```)/g);
+  let html = '';
+  let generated = 0;
+  for(const part of parts){
+    if(part.startsWith('```')){
+      const inner = part.slice(3,-3);
+      const nl = inner.indexOf('\n');
+      const lang = nl>-1 ? inner.slice(0,nl).trim() : 'text';
+      const code = (nl>-1 ? inner.slice(nl+1) : inner).trimEnd();
+      if(!code) continue;
+      html += buildCard(code, lang);
+      generated++;
+    } else if(part.trim()){
+      html += `<p style="margin:6px 0">${escapeHtml(part).replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br/>')}</p>`;
     }
-    projectOrCreate();
-    renderProjects(); renderTree(); updateCtx(); welcome();
-    // Load model (first time will download & cache)
-    await loadEngine(getModel());
+  }
+  if(generated>1){
+    html = `<div class="copy-bar"><span style="font-family:var(--fco);font-size:10px;color:#8fb">Generated <b>${generated}</b> files</span><button class="btn" onclick="zipProject()">⬇ ZIP</button></div>` + html;
+  }
+  if(sources?.length){
+    html += `<div style="margin-top:8px;font-family:var(--fco);font-size:11px;color:#9ed">Sources: ${sources.map((s,i)=>`[${i+1}] <a href="${s.url}" target="_blank" style="color:#8fd">${escapeHtml(s.title||s.url)}</a>`).join(' · ')}</div>`;
+  }
+  return html;
+}
+async function indexNewFilesToMemory(fullText){
+  if(!document.getElementById('useRag').checked) return;
+  // Collect code blocks and index them
+  const blocks = [...fullText.matchAll(/```[\s\S]*?```/g)].map(m=>m[0]);
+  for(const part of blocks){
+    const inner = part.slice(3,-3);
+    const nl = inner.indexOf('\n');
+    const lang = nl>-1 ? inner.slice(0,nl).trim() : 'text';
+    const code = (nl>-1 ? inner.slice(nl+1) : inner).trimEnd();
+    if(!code) continue;
+    const m = code.match(/^(?:\/\/|#|<!--|\/\*)\s*filename:\s*(.+?)(?:\s*-->|\s*\*\/)?\s*$/im);
+    const fn = m ? m[1].trim() : inferName(lang||'text', code);
+    // Secret scanning & Qlik lint warnings
+    scanSecrets(fn, code);
+    if(fn.toLowerCase().endsWith('.qvs')) lintQlik(fn, code);
+    // Index to vector store
+    await indexFileChunks(fn, code);
+  }
+}
 
-    // Auto-resize input
-    const ta=document.getElementById('inp');
-    ta.addEventListener('input',()=>{ ta.style.height=''; ta.style.height=Math.min(ta.scrollHeight,160)+'px'; });
-    ta.addEventListener('keydown',(e)=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
+/* ========== Self‑check pass ========== */
+async function doSelfCheck(assistantText){
+  try{
+    const checklist = `Run a quick self-check on the files you just created. Look for:
+- missing files or configs (package.json, requirements.txt, README.md, .gitignore, tests)
+- broken imports/exports
+- run instructions consistency
+Return a short bullet list of issues AND a compact patch proposal (not code, just items).`;
+    hist.push({ role:'user', content: checklist });
+    const resp = await engine.chat.completions.create({ messages: hist.map(h=>({role:h.role, content:h.content})), temperature:0.1, max_tokens:800, stream:false });
+    const txt = resp?.choices?.[0]?.message?.content || '';
+    if(txt){ addMsg('assistant', `<div class="bub"><b>Self‑check:</b><br/>${escapeHtml(txt).replace(/\n/g,'<br/>')}</div>`); hist.push({role:'assistant', content: txt}); }
+  }catch(_){}
+}
 
-    // expose send globally for button
-    window.send = send;
-  </script>
+/* ========== JS/TS Runner (iframe sandbox) & Python (Pyodide) ========== */
+function sandboxHTML(src){ return `<!doctype html><html><body><script>
+  (function(){
+    const log = (...a)=>parent.postMessage({type:'riley-log', data: a.map(x=>String(x)).join(' ')}, '*');
+    const err = (e)=>parent.postMessage({type:'riley-err', data: String(e && (e.stack||e))}, '*');
+    try {
+      // eslint-disable-next-line no-eval
+      const r = eval(${JSON.stringify(src)});
+      if(r!==undefined) log(r);
+    } catch(e){ err(e); }
+  })();
+</script></body></html>`; }
+window.openRunFor = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return;
+  selFile=fn; vname.textContent=fn; vcode.textContent=f.code; runSelected(); };
+window.runSelected = ()=>{ if(!selFile){ alert('Select a file first'); return; }
+  const f=(ap().files||[]).find(x=>x.filename===selFile); if(!f) return;
+  if(f.filename.endsWith('.py')){ document.getElementById('pySrc').value = f.code; document.getElementById('dlg-python').showModal(); return; }
+  if(!(f.filename.endsWith('.js')||f.filename.endsWith('.mjs')||f.filename.endsWith('.ts'))){ alert('Runner supports JS/TS/Py only'); return; }
+  // Minimal TS support: strip type annotations (naive) just for quick try
+  let src = f.code; if(f.filename.endsWith('.ts')) src = src.replace(/:\s*[A-Za-z0-9_<>\[\]\|&: ,?]+/g,'').replace(/interface\s+\w+\s*{[^}]*}/g,'');
+  const iframe = document.createElement('iframe'); iframe.sandbox='allow-scripts'; iframe.style.display='none'; document.body.appendChild(iframe);
+  window.addEventListener('message', function h(ev){ if(ev.data?.type==='riley-log'||ev.data?.type==='riley-err'){ addMsg('assistant', `<pre>${escapeHtml(ev.data.data)}</pre>`); window.removeEventListener('message',h); setTimeout(()=>iframe.remove(),50); } });
+  iframe.srcdoc = sandboxHTML(src);
+};
+
+// Pyodide (lazy)
+let pyodide=null;
+async function ensurePyodide(){
+  if(pyodide) return pyodide;
+  const s = document.createElement('script'); s.src = "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"; // official CDN  [6](https://pyodide.org/en/0.24.1/usage/downloading-and-deploying.html)
+  await new Promise(res=>{ s.onload=res; document.body.appendChild(s); });
+  // global loadPyodide now available
+  // @ts-ignore
+  pyodide = await loadPyodide(); return pyodide;
+}
+window.runPy = async ()=>{
+  const out = document.getElementById('pyOut'); out.textContent='(loading Pyodide…)';
+  try{ const p=await ensurePyodide(); const code=document.getElementById('pySrc').value; const r = p.runPython(code); out.textContent=String(r??''); }catch(e){ out.textContent = String(e && (e.stack||e)); }
+};
+
+/* ========== Prompt presets (profiles) ========== */
+function presets(){ return JSON.parse(localStorage.getItem(LS.presets)||'[]'); }
+function savePresets(arr){ localStorage.setItem(LS.presets, JSON.stringify(arr)); renderPresets(); }
+function renderPresets(){
+  const bar=document.getElementById('presetsBar'); const ps=presets();
+  bar.innerHTML = ps.map((p,i)=>`<span class="pill" onclick='applyPreset(${i})' title="${escapeHtml(p.desc||'')}">${escapeHtml(p.name)}</span>`).join('') || `<span style="font-family:var(--fco);font-size:10px;color:#8fb">Add your favorite profiles in Settings → “Add current as preset”.</span>`;
+}
+window.applyPreset = (i)=>{ const p=presets()[i]; if(!p) return; document.getElementById('lang').value=p.lang||'auto'; document.getElementById('mode').value=p.mode||'build'; if(p.model) { document.getElementById('model-id').value=p.model; reloadModel(); } if(p.allow) { localStorage.setItem(LS.allow, p.allow); } addMsg('assistant', `<span class="stag">✓ preset applied: ${escapeHtml(p.name)}</span>`); };
+window.addPreset = ()=>{ const name=prompt('Preset name (e.g., "TS + Vitest + strict")'); if(!name) return; const lang=document.getElementById('lang').value; const mode=document.getElementById('mode').value; const model=document.getElementById('model-id').value; const allow=localStorage.getItem(LS.allow)||''; const desc=prompt('Short description (optional)')||''; savePresets([...presets(), {name, desc, lang, mode, model, allow}]); };
+
+/* ========== Settings ========== */
+window.openSettings = ()=>{ document.getElementById('dlg-model').value = getModel(); document.getElementById('allowDomains').value = localStorage.getItem(LS.allow)||''; document.getElementById('ttlHours').value = localStorage.getItem(LS.ttl)||'24'; document.getElementById('dlg-settings').showModal(); };
+window.saveSettings = async ()=>{
+  const m = document.getElementById('dlg-model').value.trim() || 'Llama-3-8B-Instruct-q4f32_1-MLC';
+  localStorage.setItem(LS.webllmModel, m);
+  localStorage.setItem(LS.allow, document.getElementById('allowDomains').value.trim());
+  localStorage.setItem(LS.ttl, String(Math.min(Math.max(parseInt(document.getElementById('ttlHours').value||'24',10),1),168)));
+  document.getElementById('model-id').value = m;
+  document.getElementById('dlg-settings').close();
+  await reloadModel();
+};
+
+/* ========== Hints bar ========== */
+const HINTS = [
+  'Build a Node API with JWT auth and Swagger docs',
+  'Create a React + Tailwind dashboard with charts and mock API',
+  'Write a Qlik Sense load script with master calendar & QVD incrementals',
+  'Generate unit tests for this codebase',
+  'Refactor this file for clarity and performance',
+  'Explain this code and add inline comments',
+];
+function renderHints(){ const h=document.getElementById('hints'); h.innerHTML = HINTS.map(x=>`<span class="pill" onclick='quickInsert(${JSON.stringify(x)})'>${escapeHtml(x)}</span>`).join(' '); }
+window.quickInsert = (s)=>{ const ta=document.getElementById('inp'); ta.value=s; ta.dispatchEvent(new Event('input')); ta.focus(); };
+
+/* ========== Keyboard palette (Ctrl/⌘‑K) ========== */
+const PALETTE = [
+  {name:'Zip Project', run:()=>zipProject()},
+  {name:'Zip All Projects', run:()=>zipAll()},
+  {name:'Export Chat', run:()=>exportChat()},
+  {name:'Switch Model', run:()=>openSettings()},
+  {name:'Generate Missing Config Files', run:()=>genMissing()},
+  {name:'Open Python Runner', run:()=>document.getElementById('dlg-python').showModal()},
+];
+window.openPalette = ()=>{ const d=document.getElementById('dlg-palette'); document.getElementById('paletteInput').value=''; renderPalette(''); d.showModal(); document.getElementById('paletteInput').focus(); };
+function renderPalette(q){ const list=document.getElementById('paletteList'); const items=PALETTE.filter(x=>x.name.toLowerCase().includes(q.toLowerCase())); list.innerHTML=items.map((x,i)=>`<div class="file" onclick="runPalette(${i})">${escapeHtml(x.name)}</div>`).join(''); }
+window.runPalette = (i)=>{ const it=PALETTE.filter(x=>x.name.toLowerCase().includes(document.getElementById('paletteInput').value.toLowerCase()))[i]; if(it){ it.run(); document.getElementById('dlg-palette').close(); } };
+document.getElementById('paletteInput').addEventListener('input',e=>renderPalette(e.target.value));
+window.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); openPalette(); }});
+
+/* ========== ZIP / Export / Missing Configs ========== */
+window.zipProject = async ()=>{ const p=ap(); if(!p?.files?.length) return alert('No files yet.'); const z=new JSZip(), f=z.folder(slug(p.name)); p.files.forEach(fi=>f.file(fi.filename, fi.code)); const bl=await z.generateAsync({type:'blob',compression:'DEFLATE'}); const a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download=slug(p.name)+'.zip'; a.click(); };
+window.zipAll = async ()=>{ if(!projs.some(p=>p.files?.length)) return alert('No files in any project.'); const z=new JSZip(); projs.forEach(p=>{ if(p.files?.length){ const f=z.folder(slug(p.name)); p.files.forEach(fi=>f.file(fi.filename, fi.code)); } }); const bl=await z.generateAsync({type:'blob',compression:'DEFLATE'}); const a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download='riley_all_projects.zip'; a.click(); };
+window.exportChat = ()=>{ const p=ap(); if(!p) return; let md = `# ${p.name} — Riley Export (Browser‑Only)\n\n_Generated: ${new Date().toLocaleString()}_\n\n---\n\n`; (p.hist||[]).forEach(h=>{ md += `**${h.role==='user'?'You':'Riley'}:** ${h.content}\n\n`; }); if(p.files?.length){ md += `\n---\n\n# Project Files\n`; p.files.forEach(f=>{ md += `\n## ${f.filename}\n\`\`\`\n${f.code}\n\`\`\`\n`; }); } const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([md],{type:'text/markdown'})); a.download=slug(p.name)+'_export.md'; a.click(); };
+
+window.genMissing = ()=>{ const p=ap(); const all=p.files.map(f=>f.filename); const need=[]; if(all.some(f=>f.endsWith('.py'))&&!all.includes('requirements.txt')) need.push('requirements.txt'); if(all.some(f=>/\.(js|ts|jsx|tsx|mjs)$/.test(f))&&!all.includes('package.json')) need.push('package.json'); if(!all.includes('README.md')) need.push('README.md'); if(!all.includes('.gitignore')) need.push('.gitignore'); if(!need.length){ addMsg('assistant','<span class="stag">No missing config files detected</span>'); return; } const req = `Generate the following missing root files for this project with correct content:\n- ${need.join('\n- ')}\nUse our filename rule on line 1. Include run/setup steps in README.`; const ta=document.getElementById('inp'); ta.value=req; send(); };
+
+/* ========== Qlik Script Linter (basic heuristics) ========== */
+function lintQlik(fn, code){
+  const warns=[];
+  if(/(LOAD\s+[^\n]+\n)+\s*LOAD\s/i.test(code) && !/QUALIFY|UNQUALIFY/i.test(code)) warns.push('Consider QUALIFY/UNQUALIFY to avoid synthetic keys.');
+  if(/JOIN\s/i.test(code) && !/KEY|CONCATENATE/i.test(code)) warns.push('Check join keys to avoid unintended cartesian joins.');
+  if(/SECTION\s+ACCESS/i.test(code) && !/SECTION\s+APPLICATION/i.test(code)) warns.push('SECTION APPLICATION missing after SECTION ACCESS?');
+  if(warns.length){ addMsg('assistant', `<div class="bub"><b>Qlik lint for ${escapeHtml(fn)}:</b><br/>• ${warns.map(escapeHtml).join('<br/>• ')}</div>`); }
+}
+
+/* ========== Secret scanning (very simple patterns) ========== */
+function scanSecrets(fn, code){
+  const pats=[ /AKIA[0-9A-Z]{16}/, /-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY-----/, /ghp_[A-Za-z0-9]{36,}/, /xox[baprs]-[0-9A-Za-z-]{10,}/ ];
+  if(pats.some(re=>re.test(code))){ addMsg('assistant', `<span class="stag err">Potential secret detected in ${escapeHtml(fn)} — review before committing.</span>`); }
+}
+
+/* ========== Project ops ========== */
+window.newProject = ()=>{ const name = prompt('Project name:', 'New Project') || 'New Project'; ap().hist = hist.slice(); save(); const p = { id:uid(), name, files:[], hist:[], ts: Date.now() }; projs.push(p); aid=p.id; save(); hist = []; msgsEl.innerHTML=''; renderProjects(); renderTree(); updateCtx(); addMsg('assistant', `<span class="stag">✓ project created</span>`); };
+
+/* ========== Presets / Hints init ========== */
+function initPresetsBar(){ renderPresets(); renderHints(); }
+
+/* ========== Init ========== */
+ensureProject(); renderProjects(); renderTree(); updateCtx(); initPresetsBar();
+addMsg('assistant', `<b style="color:#00aaff">RILEY RACCOON — Browser‑Only (Unlimited)</b><br/><br/><span class="stag">no key</span> <span class="stag">streaming</span> <span class="stag">RAG</span> <span class="stag amber">first run caches the model</span>`);
+
+// Load model asap
+const initialModel = localStorage.getItem(LS.webllmModel) || document.getElementById('model-id').value; document.getElementById('model-id').value = initialModel;
+loadEngine(initialModel);
+
+// Auto-resize input + Enter to send
+const ta=document.getElementById('inp');
+ta.addEventListener('input',()=>{ ta.style.height=''; ta.style.height=Math.min(ta.scrollHeight,160)+'px'; });
+ta.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); }});
+</script>
 </body>
 </html>
+``

@@ -6,7 +6,7 @@
 <title>Riley Raccoon — Browser‑Only (Unlimited, Pro)</title>
 
 <!-- JSZip (zip export) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-dJ6Tq1J2jWy8nW3Vh8m7mI+iR0/Ba3+o+EtM3Wzq3+0s0U0a7QxYk0xaD4wY0g7c0mZcU1o3C4Cz7uE5y8m1dg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <!-- Google Fonts -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Rajdhani:wght@600;700&family=Exo+2:wght@400;600;700&display=swap"/>
@@ -22,7 +22,6 @@
 
 #topbar{height:60px;background:var(--b1);border-bottom:1px solid #004477;display:flex;align-items:center;padding:0 16px;gap:12px}
 #logo{display:flex;align-items:center;gap:12px}
-#logo-slot svg{width:80px;height:68px;display:block;filter:drop-shadow(0 0 5px #00aaff77) drop-shadow(0 0 14px #00aaff22)}
 #logo-text{line-height:1.1}
 #logo-name{font-family:var(--fhd);font-size:20px;letter-spacing:.12em;color:var(--eb);font-weight:700}
 #logo-sub{font-family:var(--fco);font-size:10px;color:#7aa8c9;letter-spacing:.18em}
@@ -83,14 +82,42 @@ select,.mini{font-family:var(--fco);font-size:11px;background:#0a1422;border:1px
 kbd{font-family:var(--fco);border:1px solid #2c3a4e;background:#091424;border-radius:4px;padding:1px 4px;color:#cde}
 
 dialog{border:1px solid #004477;background:#081220;color:#dff;padding:14px;border-radius:10px}
+
+/* Simple inline animated logo styling */
+#riley-logo{width:80px;height:68px;display:block;filter:drop-shadow(0 0 5px #00aaff77) drop-shadow(0 0 14px #00aaff22)}
+@keyframes eye {0%,100%{transform:translate(0,0)} 30%{transform:translate(1px,-1px)} 60%{transform:translate(-1px,1px)}}
 </style>
 </head>
 <body>
 
-<!-- ───────────────── Topbar with LOGO ───────────────── -->
+<!-- ───────────────── Topbar with inline LOGO ───────────────── -->
 <div id="topbar">
   <div id="logo">
-    <div id="logo-slot" title="Riley Raccoon logo (auto-loaded)"></div>
+    <!-- Inline, self‑contained SVG logo (you can replace with your own any time) -->
+    <svg id="riley-logo" viewBox="0 0 128 96" xmlns="http://www.w3.org/2000/svg" aria-label="Riley Raccoon">
+      <defs>
+        <linearGradient id="lg" x1="0" x2="1">
+          <stop offset="0" stop-color="#00aaff"/><stop offset="1" stop-color="#7e5bef"/>
+        </linearGradient>
+      </defs>
+      <!-- head -->
+      <ellipse cx="64" cy="54" rx="46" ry="30" fill="#1b2533" stroke="#0a1a28"/>
+      <!-- mask band -->
+      <path d="M22 48 Q64 34 106 48 106 60 64 64 22 60 22 48Z" fill="#0f1a26"/>
+      <!-- ears -->
+      <path d="M26 36 Q32 18 46 26 40 34 26 36Z" fill="#2a3546"/><path d="M82 26 Q96 18 102 36 88 34 82 26Z" fill="#2a3546"/>
+      <!-- eyes -->
+      <ellipse cx="48" cy="52" rx="12" ry="10" fill="#e6ecef"/><ellipse cx="80" cy="52" rx="12" ry="10" fill="#e6ecef"/>
+      <circle cx="50" cy="53" r="5" fill="#0ea5e9" style="animation:eye 5s ease-in-out infinite"/>
+      <circle cx="78" cy="53" r="5" fill="#0ea5e9" style="animation:eye 5s ease-in-out infinite .2s"/>
+      <!-- nose -->
+      <ellipse cx="64" cy="64" rx="6" ry="4" fill="#101820"/>
+      <!-- smile -->
+      <path d="M50 70 Q64 76 78 70" stroke="url(#lg)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- glow frame -->
+      <rect x="4" y="6" width="120" height="84" rx="10" ry="10" stroke="url(#lg)" fill="none" opacity=".25"/>
+    </svg>
+
     <div id="logo-text">
       <div id="logo-name">RILEY RACCOON</div>
       <div id="logo-sub">BROWSER‑ONLY · UNLIMITED</div>
@@ -187,7 +214,7 @@ dialog{border:1px solid #004477;background:#081220;color:#dff;padding:14px;borde
   </aside>
 </div>
 
-<!-- ───────────────── Dialogs: Settings / History / Palette / Python ───────────────── -->
+<!-- ───────────────── Dialogs ───────────────── -->
 <dialog id="dlg-settings" style="max-width:720px">
   <h3 style="margin:0 0 10px 0;font-family:var(--fhd);letter-spacing:.1em;color:#00aaff">Settings</h3>
   <div style="font-family:var(--fco);font-size:12px;line-height:1.7">
@@ -213,7 +240,7 @@ dialog{border:1px solid #004477;background:#081220;color:#dff;padding:14px;borde
 </dialog>
 
 <dialog id="dlg-palette" style="max-width:560px">
-  <input id="paletteInput" placeholder="Type a command (e.g., Zip, Make GitHub-ready, Switch Model…)" style="width:100%;font-family:var(--fco);font-size:13px;background:#0a1422;border:1px solid #1d3349;color:#cfe;padding:10px;border-radius:8px"/>
+  <input id="paletteInput" placeholder="Type a command (Zip, Make GitHub‑ready, Switch Model…)" style="width:100%;font-family:var(--fco);font-size:13px;background:#0a1422;border:1px solid #1d3349;color:#cfe;padding:10px;border-radius:8px"/>
   <div id="paletteList" style="margin-top:10px;max-height:50vh;overflow:auto;font-family:var(--fco);font-size:12px"></div>
 </dialog>
 
@@ -230,40 +257,15 @@ dialog{border:1px solid #004477;background:#081220;color:#dff;padding:14px;borde
 
 <script type="module">
 /* ──────────────────────────────────────────────────────────────────────────────
-   Riley — Browser‑Only, Unlimited
-   - WebLLM (streaming) — OpenAI-like API
+   Riley — Browser‑Only, Unlimited (final)
+   - WebLLM (streaming) — OpenAI-like API in the browser
    - Transformers.js embeddings (RAG) on WebGPU
-   - Jina Search / Reader (key‑free) with caching
+   - Jina Search / Reader (key‑free) with caching, allow‑list, status tags
    - IndexedDB (projects, cache, versions, vectors)
    - Optional Pyodide (lazy)
 ────────────────────────────────────────────────────────────────────────────── */
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 import { pipeline } from "https://esm.run/@huggingface/transformers";
-
-/* ========== Logo loader (loads your ./logo.svg, falls back to a mini SVG) ========== */
-function logoFallbackSVG(){
-  return `
-  <svg viewBox="0 0 64 48" xmlns="http://www.w3.org/2000/svg" aria-label="Riley logo">
-    <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#00aaff"/><stop offset="1" stop-color="#7e5bef"/></linearGradient></defs>
-    <rect rx="8" ry="8" x="2" y="2" width="60" height="44" fill="url(#g)" opacity=".18" stroke="#0a2d45"/>
-    <circle cx="22" cy="20" r="8" fill="#cfd8e3"/><circle cx="42" cy="20" r="8" fill="#cfd8e3"/>
-    <circle cx="22" cy="20" r="4" fill="#0ea5e9"/><circle cx="42" cy="20" r="4" fill="#0ea5e9"/>
-    <path d="M16 32 Q32 38 48 32" stroke="#94a3b8" stroke-width="3" fill="none" stroke-linecap="round"/>
-  </svg>`;
-}
-async function loadLogo(){
-  const slot = document.getElementById('logo-slot');
-  try{
-    const res = await fetch('logo.svg', {cache:'no-cache'});
-    if(res.ok){
-      const svg = await res.text();
-      slot.innerHTML = svg;
-      return;
-    }
-  }catch(_){}
-  slot.innerHTML = logoFallbackSVG();
-}
-document.addEventListener('DOMContentLoaded', loadLogo);
 
 /* ========== State & Storage ========== */
 const LS = {
@@ -303,9 +305,6 @@ function renderProjects(){
       <div class="pim">${p.files.length} files · ${(p.hist||[]).filter(h=>h.role==='user').length} msgs</div>
     </div>`).join('');
 }
-window.switchProject = (id)=>{ ap().hist = hist.slice(); save(); aid=id; hist=(ap().hist||[]).slice(); msgsEl.innerHTML=''; addMsg('assistant','<span class="stag">✓ switched project</span>'); renderProjects(); renderTree(); updateCtx(); };
-
-/* ========== UI helpers ========== */
 function addMsg(role, html){
   const wrap=document.createElement('div'); wrap.className='msg';
   const av=document.createElement('div'); av.className='av '+(role==='user'?'u':''); av.textContent = role==='user' ? 'ME' : '🦝';
@@ -372,32 +371,32 @@ function renderTree(){
   }
   treeEl.innerHTML = html || `<div style="font-family:var(--fco);font-size:11px;color:#678;padding:8px">No files yet. Generate code to see files here.</div>`;
 }
-window.viewFile = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return; selFile=fn; vname.textContent=fn; vcode.textContent=f.code; };
-window.copyViewer = ()=>{ if(!selFile) return; navigator.clipboard.writeText(vcode.textContent); };
-window.downloadFile = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([f.code],{type:'text/plain'})); a.download=fn; a.click(); };
+function viewFile(fn){ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return; selFile=fn; vname.textContent=fn; vcode.textContent=f.code; }
+function copyViewer(){ if(!selFile) return; navigator.clipboard.writeText(vcode.textContent); }
+function downloadFile(fn){ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([f.code],{type:'text/plain'})); a.download=fn; a.click(); }
 
 /* ========== Versioning (IndexedDB) ========== */
 const DB_NAME='riley_db', DB_VER=2, STORE_VER='versions', STORE_CACHE='cache', STORE_VECT='vectors';
 let db=null;
 function openDB(){ return new Promise((resolve,reject)=>{ const r = indexedDB.open(DB_NAME, DB_VER);
-  r.onerror=()=>reject(r.error); r.onupgradeneeded=(e)=>{ db=r.result; if(!db.objectStoreNames.contains(STORE_VER)){ db.createObjectStore(STORE_VER,{keyPath:'id',autoIncrement:true}).createIndex('by_file','filename',{unique:false}); }
+  r.onerror=()=>reject(r.error); r.onupgradeneeded=()=>{ db=r.result;
+    if(!db.objectStoreNames.contains(STORE_VER)){ db.createObjectStore(STORE_VER,{keyPath:'id',autoIncrement:true}).createIndex('by_file','filename',{unique:false}); }
     if(!db.objectStoreNames.contains(STORE_CACHE)){ db.createObjectStore(STORE_CACHE,{keyPath:'key'}).createIndex('by_ts','ts'); }
     if(!db.objectStoreNames.contains(STORE_VECT)){ const s=db.createObjectStore(STORE_VECT,{keyPath:'id',autoIncrement:true}); s.createIndex('by_file','filename',{unique:false}); s.createIndex('by_ts','ts'); }
   }; r.onsuccess=()=>{ db=r.result; resolve(db); }; });}
 function tx(store, mode='readonly'){ return db.transaction(store, mode).objectStore(store); }
 async function saveVersion(filename, code, origin, ts){ if(!db) await openDB(); const p=ap(); const rec={ filename, code, origin, ts, project: p?.name || '' }; await new Promise((res,rej)=>{ const req=tx(STORE_VER,'readwrite').add(rec); req.onsuccess=()=>res(); req.onerror=()=>rej(req.error); }); }
 async function listVersions(filename){ if(!db) await openDB(); return await new Promise((res,rej)=>{ const idx=tx(STORE_VER).index('by_file'); const out=[]; const req=idx.openCursor(IDBKeyRange.only(filename), 'prev'); req.onsuccess=(ev)=>{ const c=ev.target.result; if(c){ out.push(c.value); c.continue(); } else res(out); }; req.onerror=()=>rej(); }); }
-window.showHistory = async ()=>{ if(!selFile){ alert('Select a file first'); return; } const list = await listVersions(selFile); const el=document.getElementById('histList'); el.innerHTML = list.map(v=>`
+function showHistory(){ if(!selFile){ alert('Select a file first'); return; } listVersions(selFile).then(list=>{ const el=document.getElementById('histList'); el.innerHTML = (list||[]).map(v=>`
   <div style="border:1px solid #1d3349;border-radius:8px;margin:6px 0">
     <div style="display:flex;justify-content:space-between;background:#0b1a2a;padding:6px 10px"><span>${new Date(v.ts).toLocaleString()} · ${v.origin}</span>
       <div><button class="btn" onclick='revertVersion(${v.id})'>Revert</button></div></div>
     <pre style="margin:0;padding:10px 12px;max-height:220px;overflow:auto;color:#6be08a">${escapeHtml(v.code)}</pre>
   </div>`).join('') || '<div>No history yet.</div>';
-  document.getElementById('dlg-history').showModal();
-};
-window.revertVersion = async (id)=>{ if(!db) await openDB(); const o=tx(STORE_VER); const g=await new Promise((res,rej)=>{ const req=o.get(id); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); if(!g) return;
+  document.getElementById('dlg-history').showModal(); }); }
+async function revertVersion(id){ if(!db) await openDB(); const o=tx(STORE_VER); const g=await new Promise((res,rej)=>{ const req=o.get(id); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); if(!g) return;
   addOrUpdateFile(g.filename, g.code, 'code'); vname.textContent=g.filename; vcode.textContent=g.code; document.getElementById('dlg-history').close();
-  addMsg('assistant','<span class="stag">✓ reverted</span>'); };
+  addMsg('assistant','<span class="stag">✓ reverted</span>'); }
 
 /* ========== Cache (Jina) ========== */
 async function cacheGet(key){ if(!db) await openDB(); return await new Promise((res,rej)=>{ const req=tx(STORE_CACHE).get(key); req.onsuccess=()=>res(req.result); req.onerror=()=>rej(req.error); }); }
@@ -438,7 +437,6 @@ async function jinaRead(u){
 /* ========== Embeddings (RAG memory) ========== */
 async function ensureEmbeddings(){
   if(embeddingReady) return;
-  // small, fast embedding model
   embeddings = await pipeline("feature-extraction", "mixedbread-ai/mxbai-embed-xsmall-v1", { device: "webgpu" });
   embeddingReady = true;
 }
@@ -507,7 +505,7 @@ async function send(){
     try{
       const hits = await jinaSearch(text, 3);
       if(!hits.length){
-        holder.innerHTML = `<span class="stag amber">no web results (check Settings → allow‑list)</span>`;
+        holder.innerHTML = `<span class="stag.amber">no web results (check Settings → allow‑list)</span>`;
       } else {
         const docs = await Promise.all(hits.map(h => jinaRead(h.url)));
         sources = hits.map((h,i)=>({ title: h.title, url: h.url, content: (docs[i]||'').slice(0,1000) }));
@@ -591,7 +589,7 @@ function renderResponse(text, sources){
   }
   if(sources?.length){
     html += `<div style="margin-top:8px;font-family:var(--fco);font-size:11px;color:#9ed">
-      Sources: ${sources.map((s,i)=>`<a href="${s.url}" target="_blank" rel="noopener">[${i+1}] ${escapeHtml(s.title||s.url)}</a>`).join(' · ')}
+      Sources: ${sources.map((s,i)=>`<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">[${i+1}] ${escapeHtml(s.title||s.url)}</a>`).join(' · ')}
     </div>`;
   }
   return html;
@@ -637,9 +635,9 @@ function sandboxHTML(src){ return `<!doctype html><html><body><script>
     catch(e){ err(e); }
   })();
 </script></body></html>`; }
-window.openRunFor = (fn)=>{ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return;
-  selFile=fn; vname.textContent=fn; vcode.textContent=f.code; runSelected(); };
-window.runSelected = ()=>{ if(!selFile){ alert('Select a file first'); return; }
+function openRunFor(fn){ const f=(ap().files||[]).find(x=>x.filename===fn); if(!f) return;
+  selFile=fn; vname.textContent=fn; vcode.textContent=f.code; runSelected(); }
+function runSelected(){ if(!selFile){ alert('Select a file first'); return; }
   const f=(ap().files||[]).find(x=>x.filename===selFile); if(!f) return;
   if(f.filename.endsWith('.py')){ document.getElementById('pySrc').value = f.code; document.getElementById('dlg-python').showModal(); return; }
   if(!(f.filename.endsWith('.js')||f.filename.endsWith('.mjs')||f.filename.endsWith('.ts'))){ alert('Runner supports JS/TS/Py only'); return; }
@@ -647,7 +645,7 @@ window.runSelected = ()=>{ if(!selFile){ alert('Select a file first'); return; }
   const iframe = document.createElement('iframe'); iframe.sandbox='allow-scripts'; iframe.style.display='none'; document.body.appendChild(iframe);
   window.addEventListener('message', function h(ev){ if(ev.data?.type==='riley-log'||ev.data?.type==='riley-err'){ addMsg('assistant', `<pre>${escapeHtml(ev.data.data)}</pre>`); window.removeEventListener('message',h); setTimeout(()=>iframe.remove(),50); } });
   iframe.srcdoc = sandboxHTML(src);
-};
+}
 
 // Pyodide (lazy)
 let pyodide=null;
@@ -658,24 +656,22 @@ async function ensurePyodide(){
   // @ts-ignore
   pyodide = await loadPyodide(); return pyodide;
 }
-window.runPy = async ()=>{
+async function runPy(){
   const out = document.getElementById('pyOut'); out.textContent='(loading Pyodide…)';
   try{ const p=await ensurePyodide(); const code=document.getElementById('pySrc').value; const r = p.runPython(code); out.textContent=String(r??''); }catch(e){ out.textContent = String(e && (e.stack||e)); }
-};
+}
 
-/* ========== Prompt presets (profiles) ========== */
+/* ========== Presets / Hints / Settings ========== */
 function presets(){ return JSON.parse(localStorage.getItem(LS.presets)||'[]'); }
 function savePresets(arr){ localStorage.setItem(LS.presets, JSON.stringify(arr)); renderPresets(); }
 function renderPresets(){
   const bar=document.getElementById('presetsBar'); const ps=presets();
   bar.innerHTML = ps.map((p,i)=>`<span class="pill" onclick='applyPreset(${i})' title="${escapeHtml(p.desc||'')}">${escapeHtml(p.name)}</span>`).join('') || `<span style="font-family:var(--fco);font-size:10px;color:#8fb">Add your favorite profiles in Settings → “Add current as preset”.</span>`;
 }
-window.applyPreset = (i)=>{ const p=presets()[i]; if(!p) return; document.getElementById('lang').value=p.lang||'auto'; document.getElementById('mode').value=p.mode||'build'; if(p.model) { document.getElementById('model-id').value=p.model; reloadModel(); } if(p.allow) { localStorage.setItem(LS.allow, p.allow); } addMsg('assistant', `<span class="stag">✓ preset applied: ${escapeHtml(p.name)}</span>`); };
-window.addPreset = ()=>{ const name=prompt('Preset name (e.g., "TS + Vitest + strict")'); if(!name) return; const lang=document.getElementById('lang').value; const mode=document.getElementById('mode').value; const model=document.getElementById('model-id').value; const allow=localStorage.getItem(LS.allow)||''; const desc=prompt('Short description (optional)')||''; savePresets([...presets(), {name, desc, lang, mode, model, allow}]); };
-
-/* ========== Settings ========== */
-window.openSettings = ()=>{ document.getElementById('dlg-model').value = getModel(); document.getElementById('allowDomains').value = localStorage.getItem(LS.allow)||''; document.getElementById('ttlHours').value = localStorage.getItem(LS.ttl)||'24'; document.getElementById('dlg-settings').showModal(); };
-window.saveSettings = async ()=>{
+function applyPreset(i){ const p=presets()[i]; if(!p) return; document.getElementById('lang').value=p.lang||'auto'; document.getElementById('mode').value=p.mode||'build'; if(p.model) { document.getElementById('model-id').value=p.model; reloadModel(); } if(p.allow) { localStorage.setItem(LS.allow, p.allow); } addMsg('assistant', `<span class="stag">✓ preset applied: ${escapeHtml(p.name)}</span>`); }
+function addPreset(){ const name=prompt('Preset name (e.g., "TS + Vitest + strict")'); if(!name) return; const lang=document.getElementById('lang').value; const mode=document.getElementById('mode').value; const model=document.getElementById('model-id').value; const allow=localStorage.getItem(LS.allow)||''; const desc=prompt('Short description (optional)')||''; savePresets([...presets(), {name, desc, lang, mode, model, allow}]); }
+function openSettings(){ document.getElementById('dlg-model').value = getModel(); document.getElementById('allowDomains').value = localStorage.getItem(LS.allow)||''; document.getElementById('ttlHours').value = localStorage.getItem(LS.ttl)||'24'; document.getElementById('dlg-settings').showModal(); }
+async function saveSettings(){
   const m = document.getElementById('dlg-model').value.trim() || 'Llama-3-8B-Instruct-q4f32_1-MLC';
   localStorage.setItem(LS.webllmModel, m);
   localStorage.setItem(LS.allow, document.getElementById('allowDomains').value.trim());
@@ -683,7 +679,7 @@ window.saveSettings = async ()=>{
   document.getElementById('model-id').value = m;
   document.getElementById('dlg-settings').close();
   await reloadModel();
-};
+}
 
 /* ========== Hints bar ========== */
 const HINTS = [
@@ -695,7 +691,7 @@ const HINTS = [
   'Explain this code and add inline comments',
 ];
 function renderHints(){ const h=document.getElementById('hints'); h.innerHTML = HINTS.map(x=>`<span class="pill" onclick='quickInsert(${JSON.stringify(x)})'>${escapeHtml(x)}</span>`).join(' '); }
-window.quickInsert = (s)=>{ const ta=document.getElementById('inp'); ta.value=s; ta.dispatchEvent(new Event('input')); ta.focus(); };
+function quickInsert(s){ const ta=document.getElementById('inp'); ta.value=s; ta.dispatchEvent(new Event('input')); ta.focus(); }
 
 /* ========== Keyboard palette (Ctrl/⌘‑K) ========== */
 const PALETTE = [
@@ -706,20 +702,18 @@ const PALETTE = [
   {name:'Generate Missing Config Files', run:()=>genMissing()},
   {name:'Open Python Runner', run:()=>document.getElementById('dlg-python').showModal()},
 ];
-window.openPalette = ()=>{ const d=document.getElementById('dlg-palette'); document.getElementById('paletteInput').value=''; renderPalette(''); d.showModal(); document.getElementById('paletteInput').focus(); };
+function openPalette(){ const d=document.getElementById('dlg-palette'); document.getElementById('paletteInput').value=''; renderPalette(''); d.showModal(); document.getElementById('paletteInput').focus(); }
 function renderPalette(q){ const list=document.getElementById('paletteList'); const items=PALETTE.filter(x=>x.name.toLowerCase().includes(q.toLowerCase())); list.innerHTML=items.map((x,i)=>`<div class="file" onclick="runPalette(${i})">${escapeHtml(x.name)}</div>`).join(''); }
-window.runPalette = (i)=>{ const it=PALETTE.filter(x=>x.name.toLowerCase().includes(document.getElementById('paletteInput').value.toLowerCase()))[i]; if(it){ it.run(); document.getElementById('dlg-palette').close(); } };
-document.getElementById('paletteInput').addEventListener('input',e=>renderPalette(e.target.value));
+function runPalette(i){ const it=PALETTE.filter(x=>x.name.toLowerCase().includes(document.getElementById('paletteInput').value.toLowerCase()))[i]; if(it){ it.run(); document.getElementById('dlg-palette').close(); } }
 window.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); openPalette(); }});
 
 /* ========== ZIP / Export / Missing Configs ========== */
-window.zipProject = async ()=>{ const p=ap(); if(!p?.files?.length) return alert('No files yet.'); const z=new JSZip(), f=z.folder(slug(p.name)); p.files.forEach(fi=>f.file(fi.filename, fi.code)); const bl=await z.generateAsync({type:'blob',compression:'DEFLATE'}); const a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download=slug(p.name)+'.zip'; a.click(); };
-window.zipAll = async ()=>{ if(!projs.some(p=>p.files?.length)) return alert('No files in any project.'); const z=new JSZip(); projs.forEach(p=>{ if(p.files?.length){ const f=z.folder(slug(p.name)); p.files.forEach(fi=>f.file(fi.filename, fi.code)); } }); const bl=await z.generateAsync({type:'blob',compression:'DEFLATE'}); const a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download='riley_all_projects.zip'; a.click(); };
-window.exportChat = ()=>{ const p=ap(); if(!p) return; let md = `# ${p.name} — Riley Export (Browser‑Only)\n\n_Generated: ${new Date().toLocaleString()}_\n\n---\n\n`; (p.hist||[]).forEach(h=>{ md += `**${h.role==='user'?'You':'Riley'}:** ${h.content}\n\n`; }); if(p.files?.length){ md += `\n---\n\n# Project Files\n`; p.files.forEach(f=>{ md += `\n## ${f.filename}\n\`\`\`\n${f.code}\n\`\`\`\n`; }); } const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([md],{type:'text/markdown'})); a.download=slug(p.name)+'_export.md'; a.click(); };
+async function zipProject(){ const p=ap(); if(!p?.files?.length) return alert('No files yet.'); const z=new JSZip(), f=z.folder(slug(p.name)); p.files.forEach(fi=>f.file(fi.filename, fi.code)); const bl=await z.generateAsync({type:'blob',compression:'DEFLATE'}); const a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download=slug(p.name)+'.zip'; a.click(); }
+async function zipAll(){ if(!projs.some(p=>p.files?.length)) return alert('No files in any project.'); const z=new JSZip(); projs.forEach(p=>{ if(p.files?.length){ const f=z.folder(slug(p.name)); p.files.forEach(fi=>f.file(fi.filename, fi.code)); } }); const bl=await z.generateAsync({type:'blob',compression:'DEFLATE'}); const a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download='riley_all_projects.zip'; a.click(); }
+function exportChat(){ const p=ap(); if(!p) return; let md = `# ${p.name} — Riley Export (Browser‑Only)\n\n_Generated: ${new Date().toLocaleString()}_\n\n---\n\n`; (p.hist||[]).forEach(h=>{ md += `**${h.role==='user'?'You':'Riley'}:** ${h.content}\n\n`; }); if(p.files?.length){ md += `\n---\n\n# Project Files\n`; p.files.forEach(f=>{ md += `\n## ${f.filename}\n\`\`\`\n${f.code}\n\`\`\`\n`; }); } const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([md],{type:'text/markdown'})); a.download=slug(p.name)+'_export.md'; a.click(); }
+function genMissing(){ const p=ap(); const all=p.files.map(f=>f.filename); const need=[]; if(all.some(f=>f.endsWith('.py'))&&!all.includes('requirements.txt')) need.push('requirements.txt'); if(all.some(f=>/\.(js|ts|jsx|tsx|mjs)$/.test(f))&&!all.includes('package.json')) need.push('package.json'); if(!all.includes('README.md')) need.push('README.md'); if(!all.includes('.gitignore')) need.push('.gitignore'); if(!need.length){ addMsg('assistant','<span class="stag">No missing config files detected</span>'); return; } const req = `Generate the following missing root files for this project with correct content:\n- ${need.join('\n- ')}\nUse our filename rule on line 1. Include run/setup steps in README.`; const ta=document.getElementById('inp'); ta.value=req; send(); }
 
-window.genMissing = ()=>{ const p=ap(); const all=p.files.map(f=>f.filename); const need=[]; if(all.some(f=>f.endsWith('.py'))&&!all.includes('requirements.txt')) need.push('requirements.txt'); if(all.some(f=>/\.(js|ts|jsx|tsx|mjs)$/.test(f))&&!all.includes('package.json')) need.push('package.json'); if(!all.includes('README.md')) need.push('README.md'); if(!all.includes('.gitignore')) need.push('.gitignore'); if(!need.length){ addMsg('assistant','<span class="stag">No missing config files detected</span>'); return; } const req = `Generate the following missing root files for this project with correct content:\n- ${need.join('\n- ')}\nUse our filename rule on line 1. Include run/setup steps in README.`; const ta=document.getElementById('inp'); ta.value=req; send(); };
-
-/* ========== Qlik Script Linter (basic heuristics) & Secret scan ========== */
+/* ========== Qlik lints & Secret scan ========== */
 function lintQlik(fn, code){
   const warns=[];
   if(/(LOAD\s+[^\n]+\n)+\s*LOAD\s/i.test(code) && !/QUALIFY|UNQUALIFY/i.test(code)) warns.push('Consider QUALIFY/UNQUALIFY to avoid synthetic keys.');
@@ -733,12 +727,11 @@ function scanSecrets(fn, code){
 }
 
 /* ========== Project ops ========== */
-window.newProject = ()=>{ const name = prompt('Project name:', 'New Project') || 'New Project'; ap().hist = hist.slice(); save(); const p = { id:uid(), name, files:[], hist:[], ts: Date.now() }; projs.push(p); aid=p.id; save(); hist = []; msgsEl.innerHTML=''; renderProjects(); renderTree(); updateCtx(); addMsg('assistant', `<span class="stag">✓ project created</span>`); };
+function switchProject(id){ ap().hist = hist.slice(); save(); aid=id; hist=(ap().hist||[]).slice(); msgsEl.innerHTML=''; addMsg('assistant','<span class="stag">✓ switched project</span>'); renderProjects(); renderTree(); updateCtx(); }
+function newProject(){ const name = prompt('Project name:', 'New Project') || 'New Project'; ap().hist = hist.slice(); save(); const p = { id:uid(), name, files:[], hist:[], ts: Date.now() }; projs.push(p); aid=p.id; save(); hist = []; msgsEl.innerHTML=''; renderProjects(); renderTree(); updateCtx(); addMsg('assistant', `<span class="stag">✓ project created</span>`); }
 
-/* ========== Presets / Hints init ========== */
+/* ========== Hints / Presets init & page init ========== */
 function initPresetsBar(){ renderPresets(); renderHints(); }
-
-/* ========== Init ========== */
 ensureProject(); renderProjects(); renderTree(); updateCtx(); initPresetsBar();
 addMsg('assistant', `<b style="color:#00aaff">RILEY RACCOON — Browser‑Only (Unlimited)</b><br/><br/><span class="stag">no key</span> <span class="stag">streaming</span> <span class="stag">RAG</span> <span class="stag amber">first run caches the model</span>`);
 
@@ -750,6 +743,16 @@ loadEngine(initialModel);
 const ta=document.getElementById('inp');
 ta.addEventListener('input',()=>{ ta.style.height=''; ta.style.height=Math.min(ta.scrollHeight,160)+'px'; });
 ta.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); send(); }});
+
+// ==== Expose functions to inline onclicks (critical in module scope) ====
+Object.assign(window, {
+  send, reloadModel,
+  switchProject, viewFile, copyViewer, downloadFile,
+  openRunFor, runSelected, showHistory, revertVersion,
+  openSettings, saveSettings, addPreset, applyPreset,
+  zipProject, zipAll, exportChat, genMissing, quickInsert,
+  openPalette, runPalette, runPy
+});
 </script>
 </body>
 </html>
